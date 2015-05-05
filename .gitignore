@@ -1,6 +1,6 @@
 # Android Studio defaults
-/.idea/workspace.xml
-/.idea/libraries
+.idea/workspace.xml
+.idea/libraries
 .DS_Store
 
 # Built application files
