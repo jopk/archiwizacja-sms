@@ -22,14 +22,21 @@ public class MainActivity extends ActionBarActivity {
     private int[] threadId;
     private String[] threadName;
 
+    MyResultReceiver resultReceiver;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        resultReceiver = new MyResultReceiver(null);
+        Intent intent = new Intent(this, MyService.class);
+        intent.putExtra("receiver", resultReceiver);
+        startService(intent);
+
         dba = new DbAccess(this);
-        createThreadList();
+ //       createThreadList();
     }
 
     @Override
@@ -59,9 +66,6 @@ public class MainActivity extends ActionBarActivity {
         super.onResume();
     }
 
-    private void showList() {
-        setContentView(R.layout.activity_main);
-    }
 
     private void createThreadList() {
         setContentView(R.layout.activity_main);
@@ -112,7 +116,7 @@ public class MainActivity extends ActionBarActivity {
 //                showTableScheme(ContactsContract.Contacts.CONTENT_URI);
                 return true;
             case R.id.action_main:
-                showList();
+                createThreadList();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
