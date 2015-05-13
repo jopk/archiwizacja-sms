@@ -1,88 +1,133 @@
 package com.jok.archwizacja_sms;
 
-import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-
+import android.provider.ContactsContract;
+import android.provider.Telephony;
+import android.util.ArrayMap;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class DbAccess {
 
-    private final String smsAcc = "content://sms/";
-    private final String threadAcc = "content://sms/conversations";
-
-    private Uri smsUri = Uri.parse(smsAcc);
-    private Uri threadUri = Uri.parse(threadAcc);
+    private final Uri SMS_URI = Uri.parse("content://sms/");
+    private final Uri MMS_URI = Uri.parse("content://mms/");
+    private final Uri PPL_URI = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+    private final Uri THREAD_URI = Uri.parse("content://sms/conversations");
     private Context ctx;
 
-    private Cursor threadCursor;
+    private  Cursor pplC;
+    private Cursor threadC;
+    private Map<Integer, Cursor> smsM;
 
     public DbAccess(final Context ctx) {
         this.ctx = ctx;
-        this.threadCursor = getThreads();
+        pplC = getContacts();
+        threadC = getThreads();
+        smsM = new HashMap<Integer, Cursor>(threadC.getCount());
     }
 
-    private Cursor getThreadSmses(int thread) {
-        String[] mProjection = { "thread_id", "address", "date", "date_sent", "type", "body" };
-        String mSelectionClause = "thread_id=" + String.valueOf(thread);
-    //    String mSelectionArgs[] = { "thread_id", String.valueOf(thread) };
-        return ((Activity) ctx).getContentResolver().query(smsUri, mProjection, mSelectionClause, null, null);
+    private Cursor getContacts() {
+        Cursor c;
+        if (pplC == null) {
+            String[] columns = { "contact_id", "data1", "data2", "data4", "display_name" };
+            c = ctx.getContentResolver().query(PPL_URI, columns, null, null, null);
+        }
+        else {
+            c = pplC;
+        }
+        return c;
     }
 
     private Cursor getThreads() {
-        String[] columns = { "thread_id" };
-        return ((Activity) ctx).getContentResolver().query(threadUri, columns, null, null, null);
-    }
-
-    public String getDate(long ts) {
-        try {
-            DateFormat df = new SimpleDateFormat("HH:mm:ss, dd.MM.yyyy");
-            Date myDate = new Date(ts);
-            return df.format(myDate);
-        } catch (Exception e) {
-            return "error";
+        Cursor c;
+        if (threadC == null) {
+            String[] columns = { "thread_id" };
+            c = ctx.getContentResolver().query(THREAD_URI, columns, null, null, null);
         }
+        else {
+            c = threadC;
+        }
+        return c;
     }
 
     int[] getThreadsIds() {
-        int[] ids;
-        threadCursor.moveToFirst();
-        ids = new int[threadCursor.getCount()];
+        if (threadC == null) {
+            threadC = getThreads();
+        }
+        threadC.moveToFirst();
+        int[] ids = new int[threadC.getCount()];
         for (int i = 0; i < ids.length; i++) {
-            ids[i] = threadCursor.getInt(threadCursor.getColumnIndex("thread_id"));
-            threadCursor.moveToNext();
+            ids[i] = threadC.getInt(threadC.getColumnIndex("thread_id"));
+            threadC.moveToNext();
         }
         return ids;
     }
-    
-    String[] getThreadData() {
-        threadCursor.moveToFirst();
-        String[] data = new String[threadCursor.getCount()];
-        for (int i = 0; i < data.length; i++)
+
+    String[] getContactsNames() {
+        if (threadC == null) {
+            threadC = getThreads();
+        }
+        if (pplC == null) {
+            pplC = getContacts();
+        }
+        threadC.moveToFirst();
+        String[] tmp_data = new String[threadC.getCount()];
+        for (int i = 0; i < tmp_data.length; i++)
         {
-            int t_id = threadCursor.getInt(threadCursor.getColumnIndex("thread_id"));
+            int t_id = threadC.getInt(threadC.getColumnIndex("thread_id"));
             Cursor smsC = getThreadSmses(t_id);
             while (smsC.moveToNext()) {
-                if (smsC.getInt(smsC.getColumnIndex("type")) == 1) // inbox
+                if (smsC.getInt(smsC.getColumnIndex("type")) == Telephony.TextBasedSmsColumns.MESSAGE_TYPE_INBOX) // inbox
                     break;
             }
             try {
-                data[i] = smsC.getString(smsC.getColumnIndex("address"));
+                tmp_data[i] = smsC.getString(smsC.getColumnIndex("address"));
             }
             catch (Exception e) {
-                data[i] = String.valueOf(smsC.getCount());
+                tmp_data[i] = null;
             }
-            smsC.close();
-            threadCursor.moveToNext();
+            threadC.moveToNext();
 
         }
+        String[] data = new String[tmp_data.length];
+        for (int j = 0; j < data.length; j++) {
+            pplC.moveToFirst();
+            do {
+                if (pplC.getType(pplC.getColumnIndex("data4")) != Cursor.FIELD_TYPE_NULL) {
+                    if (pplC.getString(pplC.getColumnIndex("data4")).equals(tmp_data[j])) {
+                        data[j] = pplC.getString(pplC.getColumnIndex("display_name"));
+                        break;
+                    }
+                }
+                else {
+                    data[j] = tmp_data[j];
+                }
+            } while (pplC.moveToNext());
+        }
+
         return data;
     }
-    
+
+    private Cursor getThreadSmses(int thread) {
+        Cursor c;
+        if (smsM.containsKey(thread)) {
+            c = smsM.get(thread);
+        }
+        else {
+            String[] mProjection = {"thread_id", "address", "date", "date_sent", "type", "body"};
+            String mSelectionClause = "thread_id=" + String.valueOf(thread);
+            //    String mSelectionArgs[] = { "thread_id", String.valueOf(thread) };
+            c = ctx.getContentResolver().query(SMS_URI, mProjection, mSelectionClause, null, null);
+        }
+        return c;
+    }
+
     String[] getSmsesData(int t_id) {
         String[] data;
         Cursor c = getThreadSmses(t_id);
@@ -92,11 +137,23 @@ public class DbAccess {
             data[i] = c.getString(c.getColumnIndex("body"));
             c.moveToNext();
         }
-        c.close();
         return data;
     }
 
+    public String formatDate(long ts) {
+        try {
+            DateFormat df = new SimpleDateFormat("HH:mm:ss, dd.MM.yyyy");
+            Date myDate = new Date(ts);
+            return df.format(myDate);
+        } catch (Exception e) {
+            return "error";
+        }
+    }
+
     public void close() {
-        threadCursor.close();
+        threadC.close();
+        for (Map.Entry<Integer, Cursor> entry : smsM.entrySet()) {
+            entry.getValue().close();
+        }
     }
 }

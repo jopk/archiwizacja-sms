@@ -3,7 +3,7 @@ package com.jok.archwizacja_sms;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.provider.Telephony;
+import android.provider.ContactsContract;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -13,11 +13,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.sql.Date;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -30,11 +26,10 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
+
         dba = new DbAccess(this);
         createThreadList();
-
     }
 
     @Override
@@ -64,9 +59,15 @@ public class MainActivity extends ActionBarActivity {
         super.onResume();
     }
 
+    private void showList() {
+        setContentView(R.layout.activity_main);
+    }
+
     private void createThreadList() {
+        setContentView(R.layout.activity_main);
+
         threadId = dba.getThreadsIds();
-        threadName = dba.getThreadData();
+        threadName = dba.getContactsNames();
         MyListAdapter adapter = new MyListAdapter(this, threadName);
         ListView list = (ListView) findViewById(R.id.thread_list);
         list.setAdapter(adapter);
@@ -97,11 +98,61 @@ public class MainActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id) {
+            case R.id.action_settings:
+                return true;
+            case R.id.action_sms:
+                showTableScheme(Uri.parse("content://sms/"));
+                return true;
+            case R.id.action_mms:
+                showTableScheme(Uri.parse("content://mms/"));
+                return true;
+            case R.id.action_contacts:
+                  showTableScheme(ContactsContract.CommonDataKinds.Phone.CONTENT_URI);
+//                showTableScheme(ContactsContract.Contacts.CONTENT_URI);
+                return true;
+            case R.id.action_main:
+                showList();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
+    }
 
-        return super.onOptionsItemSelected(item);
+    private void showTableScheme(Uri uri) {
+        ScrollView sv = new ScrollView(this);
+        TextView tv = new TextView(this);
+        Cursor c = getContentResolver().query(uri, null, null, null, null);
+        String sms = "";
+        if(c.moveToNext()) {
+            for (int i = 0; i < c.getColumnCount(); i++) {
+                sms += i + ". " + c.getColumnName(i) + " : ";
+                switch (c.getType(i)) {
+                    case Cursor.FIELD_TYPE_BLOB:
+                        sms += "blob";
+                        break;
+                    case Cursor.FIELD_TYPE_FLOAT:
+                        sms += "float";
+                        break;
+                    case Cursor.FIELD_TYPE_INTEGER:
+                        sms += "integer";
+                        break;
+                    case Cursor.FIELD_TYPE_STRING:
+                        sms += "string";
+                        break;
+                    case Cursor.FIELD_TYPE_NULL:
+                        sms += "null";
+                        break;
+                }
+                sms += "\n";
+            }
+        }
+        else {
+            sms += "data is null";
+        }
+        c.close();
+        tv.setText(sms);
+        sv.addView(tv);
+        setContentView(sv);
     }
 }

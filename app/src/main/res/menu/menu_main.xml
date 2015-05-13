@@ -3,4 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
         android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_main" android:title="@string/action_main"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_sms" android:title="@string/action_sms"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_mms" android:title="@string/action_mms"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_contacts" android:title="@string/action_contacts"
+        android:orderInCategory="100" app:showAsAction="never" />
 </menu>
