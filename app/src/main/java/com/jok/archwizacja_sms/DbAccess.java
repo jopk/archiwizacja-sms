@@ -5,7 +5,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.provider.Telephony;
-import android.util.ArrayMap;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -16,7 +15,7 @@ import java.util.Map;
 public class DbAccess {
 
     private final Uri SMS_URI = Uri.parse("content://sms/");
-    private final Uri MMS_URI = Uri.parse("content://mms/");
+//    private final Uri MMS_URI = Uri.parse("content://mms/");
     private final Uri PPL_URI = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
     private final Uri THREAD_URI = Uri.parse("content://sms/conversations");
     private Context ctx;
@@ -24,6 +23,9 @@ public class DbAccess {
     private  Cursor pplC;
     private Cursor threadC;
     private Map<Integer, Cursor> smsM;
+
+    private SmsData smsData;
+    private ContactData contactData;
 
     public DbAccess(final Context ctx) {
         this.ctx = ctx;
@@ -35,8 +37,8 @@ public class DbAccess {
     private Cursor getContacts() {
         Cursor c;
         if (pplC == null) {
-            String[] columns = { "contact_id", "data1", "data2", "data4", "display_name" };
-            c = ctx.getContentResolver().query(PPL_URI, columns, null, null, null);
+            String[] mProjection = { "contact_id", "data1", "data2", "data4", "display_name" };
+            c = ctx.getContentResolver().query(PPL_URI, mProjection, null, null, null);
         }
         else {
             c = pplC;
@@ -44,11 +46,19 @@ public class DbAccess {
         return c;
     }
 
+    private Cursor getContactsByAddress(String address) {
+        String[] mProjection = { "data4", "display_name" };
+        String mSelection = "data4=?";
+        String[] mSelectionArgs = { address };
+
+        return ctx.getContentResolver().query(PPL_URI, mProjection, mSelection, mSelectionArgs, null);
+    }
+
     private Cursor getThreads() {
         Cursor c;
         if (threadC == null) {
-            String[] columns = { "thread_id" };
-            c = ctx.getContentResolver().query(THREAD_URI, columns, null, null, null);
+            String[] mProjection = { "thread_id" };
+            c = ctx.getContentResolver().query(THREAD_URI, mProjection, null, null, null);
         }
         else {
             c = threadC;
@@ -97,18 +107,24 @@ public class DbAccess {
         }
         String[] data = new String[tmp_data.length];
         for (int j = 0; j < data.length; j++) {
-            pplC.moveToFirst();
-            do {
-                if (pplC.getType(pplC.getColumnIndex("data4")) != Cursor.FIELD_TYPE_NULL) {
-                    if (pplC.getString(pplC.getColumnIndex("data4")).equals(tmp_data[j])) {
-                        data[j] = pplC.getString(pplC.getColumnIndex("display_name"));
-                        break;
+            if (tmp_data[j] != null) {
+                Cursor c = getContactsByAddress(tmp_data[j]);
+                if (c.getCount() > 0) {
+                    while (c.moveToNext()) {
+                        if (c.getType(c.getColumnIndex("display_name")) != Cursor.FIELD_TYPE_NULL) {
+                            data[j] = c.getString(c.getColumnIndex("display_name"));
+                            break;
+                        }
                     }
                 }
                 else {
                     data[j] = tmp_data[j];
                 }
-            } while (pplC.moveToNext());
+                c.close();
+            }
+            else {
+                data[j] = tmp_data[j];
+            }
         }
 
         return data;
@@ -128,7 +144,55 @@ public class DbAccess {
         return c;
     }
 
-    String[] getSmsesData(int t_id) {
+
+    SmsData[] prepareSmsData() {
+        SmsData[] data;
+        String[] mProjection = { "thread_id", "address", "date", "type", "body" };
+        Cursor c = ctx.getContentResolver().query(SMS_URI, mProjection, null, null, null);
+        if (c.getCount() > 0) {
+            int app_id = 1;
+            data = new SmsData[c.getCount()];
+            while (c.moveToNext()) {
+                data[app_id-1] = new SmsData(app_id,
+                        c.getInt(c.getColumnIndex("thread_id")),
+                        c.getInt(c.getColumnIndex("type")),
+                        c.getInt(c.getColumnIndex("date")),
+                        c.getString(c.getColumnIndex("address")),
+                        c.getString(c.getColumnIndex("body")));
+                app_id++;
+            }
+        }
+        else {
+            data = null;
+        }
+        c.close();
+        return data;
+    }
+
+    // TODO: unifikacja do pojedyńczych rekordów
+    ContactData[] prepareContactData() {
+        ContactData[] data;
+        String[] mProjection = { "contact_id", "data4", "display_name" };
+        Cursor c = ctx.getContentResolver().query(PPL_URI, mProjection, null, null, null);
+        if (c.getCount() > 0) {
+            int app_id = 1;
+            data = new ContactData[c.getCount()];
+            while (c.moveToNext()) {
+                data[app_id-1] = new ContactData(app_id,
+                        c.getInt(c.getColumnIndex("contact_id")),
+                        c.getString(c.getColumnIndex("data4")),
+                        c.getString(c.getColumnIndex("display_name")));
+                app_id++;
+            }
+        }
+        else {
+            data = null;
+        }
+        c.close();
+        return data;
+    }
+
+    String[] getSmsesBody(int t_id) {
         String[] data;
         Cursor c = getThreadSmses(t_id);
         c.moveToFirst();
@@ -152,8 +216,17 @@ public class DbAccess {
 
     public void close() {
         threadC.close();
+        pplC.close();
         for (Map.Entry<Integer, Cursor> entry : smsM.entrySet()) {
             entry.getValue().close();
         }
+    }
+
+    public SmsData getSmsData() {
+        return smsData;
+    }
+
+    public ContactData getContactData() {
+        return contactData;
     }
 }

@@ -24,7 +24,7 @@ public class SmsList extends Activity {
         address = extras.getString("address");
         t_id = extras.getInt("thread_id");
 
-        String[] data = dba.getSmsesData(t_id);
+        String[] data = dba.getSmsesBody(t_id);
         MyListAdapter adapter = new MyListAdapter(this, data);
         ListView listView = (ListView) findViewById(R.id.sms_list);
         listView.setAdapter(adapter);

@@ -33,10 +33,10 @@ public class MainActivity extends ActionBarActivity {
         resultReceiver = new MyResultReceiver(null);
         Intent intent = new Intent(this, MyService.class);
         intent.putExtra("receiver", resultReceiver);
-        startService(intent);
+    //    startService(intent);
 
         dba = new DbAccess(this);
- //       createThreadList();
+        createThreadList();
     }
 
     @Override

@@ -1,9 +1,5 @@
 package com.jok.archwizacja_sms;
 
-/**
- * Created by damian on 13.05.15.
- */
-
 import android.os.Environment;
 
 import java.io.BufferedInputStream;
