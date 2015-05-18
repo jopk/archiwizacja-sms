@@ -25,32 +25,31 @@ public class Compress{
         File filepath = new File(path);
         File zipfile = new File(zipFile);
         if (!filepath.exists()) filepath.mkdir();
-        if (!zipfile.exists()) {
-            try {
-                BufferedInputStream origin = null;
-                FileOutputStream dest = new FileOutputStream(zipFile);
+        try {
+            BufferedInputStream origin = null;
+            FileOutputStream dest = new FileOutputStream(zipFile);
 
-                ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(dest));
+            ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(dest));
 
-                byte data[] = new byte[buffer];
-                for(int i=0;i<files.length;i++){
-                    files[i]=Environment.getExternalStorageDirectory().getAbsolutePath()+"/compress/"+files[i];
-                    FileInputStream fi = new FileInputStream(files[i]);
-                    origin = new BufferedInputStream(fi, buffer);
-                    ZipEntry entry = new ZipEntry(files[i].substring(files[i].lastIndexOf("/") + 1));
-                    out.putNextEntry(entry);
-                    int count;
-                    while ((count = origin.read(data, 0, buffer)) != -1) {
-                        out.write(data, 0, count);
-                    }
-                    origin.close();
+            byte data[] = new byte[buffer];
+            for(int i=0;i<files.length;i++){
+                files[i]=Environment.getExternalStorageDirectory().getAbsolutePath()+"/compress/"+files[i];
+                FileInputStream fi = new FileInputStream(files[i]);
+                origin = new BufferedInputStream(fi, buffer);
+                ZipEntry entry = new ZipEntry(files[i].substring(files[i].lastIndexOf("/") + 1));
+                out.putNextEntry(entry);
+                int count;
+                while ((count = origin.read(data, 0, buffer)) != -1) {
+                    out.write(data, 0, count);
                 }
-                out.close();
-
-            } catch (Exception e) {
-                e.printStackTrace();
+                origin.close();
             }
-        } /*else {
+            out.close();
+
+        } catch (Exception e) {
+                e.printStackTrace();
+        }
+        /*else {
             try {
                 ZipFile war = new ZipFile(zipFile);
                 ZipOutputStream append = new ZipOutputStream(new FileOutputStream(Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/" + "append.zip"));

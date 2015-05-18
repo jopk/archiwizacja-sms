@@ -11,4 +11,5 @@
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/action_contacts" android:title="@string/action_contacts"
         android:orderInCategory="100" app:showAsAction="never" />
+
 </menu>
