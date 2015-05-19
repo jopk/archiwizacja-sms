@@ -2,29 +2,29 @@ package com.jok.archwizacja_sms;
 
 
 class SmsData {
-    private int app_sms_id;
-    private int _id;
-    private int thread_id;
-    private int m_size;
-    private int person;
-    private int date;
-    private int date_sent;
-    private int protocol;
-    private int read;
-    private int status;
-    private int type;
-    private int reply_path_present;
-    private int locked;
-    private int sim_id;
-    private int error_code;
-    private int seen;
-    private int star;
-    private int pri;
+    private Integer app_sms_id;
+    private Integer _id;
+    private Integer thread_id;
+    private Integer m_size;
+    private Integer person;
+    private Integer date;
+    private Integer date_sent;
+    private Integer protocol;
+    private Integer read;
+    private Integer status;
+    private Integer type;
+    private Integer reply_path_present;
+    private Integer locked;
+    private Integer sim_id;
+    private Integer error_code;
+    private Integer seen;
+    private Integer star;
+    private Integer pri;
     private String address;
     private String body;
     private String service_center;
 
-    SmsData(int app_sms_id, int _id, int thread_id, int m_size, int person, int date, int date_sent, int protocol, int read, int status, int type, int reply_path_present, int locked, int sim_id, int error_code, int seen, int star, int pri, String address, String body, String service_center) {
+    SmsData(Integer app_sms_id, Integer _id, Integer thread_id, Integer m_size, Integer person, Integer date, Integer date_sent, Integer protocol, Integer read, Integer status, Integer type, Integer reply_path_present, Integer locked, Integer sim_id, Integer error_code, Integer seen, Integer star, Integer pri, String address, String body, String service_center) {
         this.app_sms_id = app_sms_id;
         this._id = _id;
         this.thread_id = thread_id;
@@ -48,75 +48,75 @@ class SmsData {
         this.service_center = service_center;
     }
 
-    public int getApp_sms_id() {
+    public Integer getApp_sms_id() {
         return app_sms_id;
     }
 
-    public int get_id() {
+    public Integer get_id() {
         return _id;
     }
 
-    public int getThread_id() {
+    public Integer getThread_id() {
         return thread_id;
     }
 
-    public int getM_size() {
+    public Integer getM_size() {
         return m_size;
     }
 
-    public int getPerson() {
+    public Integer getPerson() {
         return person;
     }
 
-    public int getDate() {
+    public Integer getDate() {
         return date;
     }
 
-    public int getDate_sent() {
+    public Integer getDate_sent() {
         return date_sent;
     }
 
-    public int getProtocol() {
+    public Integer getProtocol() {
         return protocol;
     }
 
-    public int getRead() {
+    public Integer getRead() {
         return read;
     }
 
-    public int getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public int getType() {
+    public Integer getType() {
         return type;
     }
 
-    public int getReply_path_present() {
+    public Integer getReply_path_present() {
         return reply_path_present;
     }
 
-    public int getLocked() {
+    public Integer getLocked() {
         return locked;
     }
 
-    public int getSim_id() {
+    public Integer getSim_id() {
         return sim_id;
     }
 
-    public int getError_code() {
+    public Integer getError_code() {
         return error_code;
     }
 
-    public int getSeen() {
+    public Integer getSeen() {
         return seen;
     }
 
-    public int getStar() {
+    public Integer getStar() {
         return star;
     }
 
-    public int getPri() {
+    public Integer getPri() {
         return pri;
     }
 
