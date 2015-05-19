@@ -1,6 +1,7 @@
 package com.jok.archwizacja_sms;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
@@ -24,6 +25,10 @@ public class MainActivity extends ActionBarActivity {
 
     MyResultReceiver resultReceiver;
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +112,9 @@ public class MainActivity extends ActionBarActivity {
                 return true;
             case R.id.action_sms:
                 showTableScheme(Uri.parse("content://sms/"));
+                return true;
+            case R.id.action_thread:
+                showTableScheme(Uri.parse("content://sms/conversations"));
                 return true;
             case R.id.action_mms:
                 showTableScheme(Uri.parse("content://mms/"));

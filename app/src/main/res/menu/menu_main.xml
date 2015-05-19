@@ -7,6 +7,8 @@
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/action_sms" android:title="@string/action_sms"
         android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_thread" android:title="@string/thread_sms"
+        android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/action_mms" android:title="@string/action_mms"
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/action_contacts" android:title="@string/action_contacts"

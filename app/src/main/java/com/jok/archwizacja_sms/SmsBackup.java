@@ -7,9 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Switch;
 
-/**
- * Created by damian on 15.05.15.
- */
+
 public class SmsBackup extends Fragment{
     public int sleep_timer= 100;
     public Switch swch;

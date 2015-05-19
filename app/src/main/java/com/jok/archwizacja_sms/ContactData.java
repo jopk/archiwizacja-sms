@@ -1,13 +1,13 @@
 package com.jok.archwizacja_sms;
 
 
-public class ContactData {
+class ContactData {
     private int app_contact_id;
     private int contact_id;
     private String number;
     private String name;
 
-    public ContactData(int app_contact_id, int contact_id, String number, String name) {
+    ContactData(int app_contact_id, int contact_id, String number, String name) {
         this.app_contact_id = app_contact_id;
         this.contact_id = contact_id;
         this.number = number;
