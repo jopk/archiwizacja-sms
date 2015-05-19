@@ -3,6 +3,7 @@ package com.jok.archwizacja_sms;
 
 class SmsData {
     private int app_sms_id;
+    private int _id;
     private int thread_id;
     private int m_size;
     private int person;
@@ -23,8 +24,9 @@ class SmsData {
     private String body;
     private String service_center;
 
-    SmsData(int app_sms_id, int thread_id, int m_size, int person, int date, int date_sent, int protocol, int read, int status, int type, int reply_path_present, int locked, int sim_id, int error_code, int seen, int star, int pri, String address, String body, String service_center) {
+    SmsData(int app_sms_id, int _id, int thread_id, int m_size, int person, int date, int date_sent, int protocol, int read, int status, int type, int reply_path_present, int locked, int sim_id, int error_code, int seen, int star, int pri, String address, String body, String service_center) {
         this.app_sms_id = app_sms_id;
+        this._id = _id;
         this.thread_id = thread_id;
         this.m_size = m_size;
         this.person = person;
@@ -48,6 +50,10 @@ class SmsData {
 
     public int getApp_sms_id() {
         return app_sms_id;
+    }
+
+    public int get_id() {
+        return _id;
     }
 
     public int getThread_id() {
@@ -125,6 +131,5 @@ class SmsData {
     public String getService_center() {
         return service_center;
     }
-
 }
 
