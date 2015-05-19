@@ -33,6 +33,7 @@ public class DbAccess {
         pplC = getContacts();
         threadC = getThreads();
         smsM = new HashMap<Integer, Cursor>(threadC.getCount());
+        smsData = prepareSmsData();
       }
 
     private Cursor getContacts() {
@@ -166,8 +167,9 @@ public class DbAccess {
 
     SmsData getDataFromCursorRow(Cursor c, int app_id) {
         return new SmsData(app_id,
+                c.getInt(c.getColumnIndex("_id")),
                 c.getInt(c.getColumnIndex("thread_id")),
-                c.getInt(c.getColumnIndex("m_size")),
+                (c.getColumnIndex("m_size") != -1) ? c.getInt(c.getColumnIndex("m_size")) : null,
                 c.getInt(c.getColumnIndex("person")),
                 c.getInt(c.getColumnIndex("date")),
                 c.getInt(c.getColumnIndex("date_sent")),
@@ -177,11 +179,11 @@ public class DbAccess {
                 c.getInt(c.getColumnIndex("type")),
                 c.getInt(c.getColumnIndex("reply_path_present")),
                 c.getInt(c.getColumnIndex("locked")),
-                c.getInt(c.getColumnIndex("sim_id")),
+                (c.getColumnIndex("sim_id") != -1) ? c.getInt(c.getColumnIndex("sim_id")) : null,
                 c.getInt(c.getColumnIndex("error_code")),
                 c.getInt(c.getColumnIndex("seen")),
                 c.getInt(c.getColumnIndex("star")),
-                c.getInt(c.getColumnIndex("pri")),
+                (c.getColumnIndex("pri") != -1) ? c.getInt(c.getColumnIndex("pri")) : null,
                 c.getString(c.getColumnIndex("address")),
                 c.getString(c.getColumnIndex("body")),
                 c.getString(c.getColumnIndex("service_center")));
