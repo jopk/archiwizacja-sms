@@ -182,7 +182,7 @@ public class DbAccess {
                 (c.getColumnIndex("sim_id") != -1) ? c.getInt(c.getColumnIndex("sim_id")) : null,
                 c.getInt(c.getColumnIndex("error_code")),
                 c.getInt(c.getColumnIndex("seen")),
-                c.getInt(c.getColumnIndex("star")),
+                (c.getColumnIndex("star") != -1) ? c.getInt(c.getColumnIndex("star")) : null,
                 (c.getColumnIndex("pri") != -1) ? c.getInt(c.getColumnIndex("pri")) : null,
                 c.getString(c.getColumnIndex("address")),
                 c.getString(c.getColumnIndex("body")),
