@@ -7,8 +7,11 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 
@@ -16,14 +19,14 @@ public class Compress {
 
     private static final int BUFFER = 1024;
     public String[] files;
-
+    private String zipFile = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/" + "compressedsms.zip";
+    private String filepath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/";
     public Compress(String[] files){
         this.files=files;
     }
 
     public void writeFiles(String[] smsData) {
         files = new String[smsData.length];
-        String filepath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/";
         File dir = new File(filepath);
         if (!dir.exists())
             dir.mkdir();
@@ -45,7 +48,6 @@ public class Compress {
 
     public void zip() {
         String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/";
-        String zipFile = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/" + "compressedsms.zip";
         File filepath = new File(path);
         if (!filepath.exists())
             filepath.mkdir();
@@ -104,4 +106,41 @@ public class Compress {
 
         }*/
     }
+    public void unzip(){
+        InputStream fis;
+        ZipInputStream zis;
+        try {
+            String filename;
+            fis = new FileInputStream(zipFile);
+            zis = new ZipInputStream(new BufferedInputStream(fis));
+            ZipEntry zipEntry;
+            byte[] data = new byte[BUFFER];
+            int count;
+
+            while ((zipEntry = zis.getNextEntry()) != null) {
+                filename = zipEntry.getName();
+
+                // Need to create directories if not exists, or
+                // it will generate an Exception...
+                if (zipEntry.isDirectory()) {
+                    File fmd = new File(filepath + filename);
+                    fmd.mkdirs();
+                    continue;
+                }
+
+                FileOutputStream fos = new FileOutputStream(filepath + filename);
+
+                while ((count = zis.read(data)) != -1) {
+                    fos.write(data, 0, count);
+                }
+
+                fos.close();
+                zis.closeEntry();
+            }
+
+            zis.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+     }
 }
