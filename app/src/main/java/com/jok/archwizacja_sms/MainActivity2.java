@@ -5,9 +5,11 @@ import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 
 public class MainActivity2 extends ActionBarActivity {
@@ -26,6 +28,7 @@ public class MainActivity2 extends ActionBarActivity {
         SmsBackup smsFrag = new SmsBackup();
         fragTransaction.replace(android.R.id.content, smsFrag);
         fragTransaction.commit();
+        Toast.makeText(this, Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/", Toast.LENGTH_LONG).show();
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

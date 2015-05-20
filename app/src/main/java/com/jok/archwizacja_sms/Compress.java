@@ -39,9 +39,9 @@ public class Compress {
                 pw.close();
             }
         } catch(Exception e){
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        // bo następne wywołanie to zip
+        // bo następne wywołanie to zip ale to głupie
         return this;
     }
 
@@ -71,7 +71,7 @@ public class Compress {
             out.close();
 
         } catch (Exception e) {
-                e.printStackTrace();
+            throw new RuntimeException(e);
         }
         /*else {
             try {

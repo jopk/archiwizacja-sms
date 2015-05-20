@@ -1,6 +1,7 @@
 package com.jok.archwizacja_sms;
 
 
+import android.app.Activity;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -19,22 +20,19 @@ public class MyService extends Service {
     private int startId;
 
     private long time;
+    private long last_sms_backup;
+    private long last_contacts_backup;
+    private final long NO_BACKUP = -1;
+    private final long NO_AUTO = 0;
 
-    private int last_sms_backup;
-    private int last_contacts_backup;
-
-
-    private final int NO_BACKUP = -1;
-    private final int NO_AUTO = 0;
-
+    private boolean test = false;
 
     private Thread thread;
-
-
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Toast.makeText(getApplicationContext(), "service is running", Toast.LENGTH_SHORT).show();
+        final Context context = getApplicationContext();
 
         new Thread(new Runnable() {
             @Override
@@ -56,7 +54,6 @@ public class MyService extends Service {
 
         time = getMiliseconds(second, minute, hour, day, week, month);
 
-        Context context = getApplicationContext();
         SharedPreferences sharedPref = context.getSharedPreferences(
                 getString(R.string.service_settings), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
@@ -78,31 +75,36 @@ public class MyService extends Service {
     @Override
     public  void onCreate() {
 
-        Context context = getApplicationContext();
+        final Context context = getApplicationContext();
         SharedPreferences sharedPref = context.getSharedPreferences(
                 getString(R.string.service_settings), Context.MODE_PRIVATE);
-        last_sms_backup = sharedPref.getInt(getString(R.string.last_sms_backup), NO_BACKUP);
-        last_contacts_backup = sharedPref.getInt(getString(R.string.last_contacts_backup), NO_BACKUP);
+        last_sms_backup = sharedPref.getLong(getString(R.string.last_sms_backup), 1);
+        last_contacts_backup = sharedPref.getLong(getString(R.string.last_contacts_backup), NO_BACKUP);
         time = sharedPref.getLong(getString(R.string.time_period), NO_AUTO);
 
         thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
+                    while (dba == null) {
+                        Thread.sleep(1000L);
+                    }
                     do {
-                        String[] smsData = dba.getXml(last_sms_backup, dba.SMS_TYPE);
+                        String[] smsData = (last_sms_backup != NO_BACKUP) ? dba.getXml(last_sms_backup, dba.SMS_TYPE) : null;
                         if (smsData != null) {
+                            test = true;
                             new Compress(null).writeFiles(smsData).zip();
                         }
-                        String[] pplData = dba.getXml(last_contacts_backup, dba.CONTACT_TYPE);
+                        String[] pplData = (last_contacts_backup != NO_BACKUP) ? dba.getXml(last_contacts_backup, dba.CONTACT_TYPE) : null;
                         if (pplData != null) {
                             new Compress(null).writeFiles(pplData).zip();
                         }
                         Thread.sleep(time);
                     } while (time != NO_AUTO);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
+                stopSelf();
             }
         });
         thread.start();
@@ -110,7 +112,14 @@ public class MyService extends Service {
 
     @Override
     public void onDestroy() {
-        Toast.makeText(getApplicationContext(), "service is dying", Toast.LENGTH_SHORT).show();
+        if (test) {
+            Toast.makeText(getApplicationContext(), "true", Toast.LENGTH_SHORT).show();
+
+        }
+        else {
+            Toast.makeText(getApplicationContext(), "false", Toast.LENGTH_SHORT).show();
+        }
+//        Toast.makeText(getApplicationContext(), "service is dying", Toast.LENGTH_SHORT).show();
         time = NO_AUTO; // kills thread
         Thread.interrupted();
         while (thread.isAlive()) {
@@ -126,8 +135,8 @@ public class MyService extends Service {
                 getString(R.string.service_settings), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putLong(getString(R.string.time_period), time);
-        editor.putLong(getString(R.string.last_sms_backup), last_sms_backup);
-        editor.putLong(getString(R.string.last_contacts_backup), last_contacts_backup);
+        editor.putLong(getString(R.string.last_sms_backup), 1);
+        editor.putLong(getString(R.string.last_contacts_backup), NO_BACKUP);
         editor.apply();
     }
 

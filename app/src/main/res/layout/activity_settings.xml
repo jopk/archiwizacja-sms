@@ -1,0 +1,202 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/settings_height">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="@string/time_period_second"
+                android:id="@+id/seconds"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true" />
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:ems="10"
+                android:id="@+id/editText"
+                android:layout_weight="1" />
+
+            <Button
+                android:layout_width="@dimen/x_size"
+                android:layout_height="@dimen/x_size"
+                android:text="@string/reset_setting"
+                android:textColor="@color/red"
+                android:textStyle="bold"
+                android:id="@+id/button2" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/settings_height" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="@string/time_period_minute"
+                android:id="@+id/minutes"
+                android:layout_below="@+id/seconds"
+                android:layout_alignParentStart="true" />
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:ems="10"
+                android:id="@+id/editText2"
+                android:layout_weight="1" />
+
+            <Button
+                android:layout_width="@dimen/x_size"
+                android:layout_height="@dimen/x_size"
+                android:text="@string/reset_setting"
+                android:textColor="@color/red"
+                android:textStyle="bold"
+                android:id="@+id/button3" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/settings_height" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="@string/time_period_hour"
+                android:id="@+id/hours"
+                android:layout_below="@+id/minutes"
+                android:layout_alignParentStart="true" />
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:ems="10"
+                android:id="@+id/editText3"
+                android:layout_weight="1" />
+
+            <Button
+                android:layout_width="@dimen/x_size"
+                android:layout_height="@dimen/x_size"
+                android:text="@string/reset_setting"
+                android:textColor="@color/red"
+                android:textStyle="bold"
+                android:id="@+id/button4" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/settings_height" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="@string/time_period_day"
+                android:id="@+id/days"
+                android:layout_below="@+id/hours"
+                android:layout_alignParentStart="true" />
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:ems="10"
+                android:id="@+id/editText4"
+                android:layout_weight="1" />
+
+            <Button
+                android:layout_width="@dimen/x_size"
+                android:layout_height="@dimen/x_size"
+                android:text="@string/reset_setting"
+                android:textColor="@color/red"
+                android:textStyle="bold"
+                android:id="@+id/button5" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/settings_height" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="@string/time_period_week"
+                android:id="@+id/weeks"
+                android:layout_below="@+id/days"
+                android:layout_alignParentStart="true" />
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:ems="10"
+                android:id="@+id/editText5"
+                android:layout_weight="1" />
+
+            <Button
+                android:layout_width="@dimen/x_size"
+                android:layout_height="@dimen/x_size"
+                android:text="@string/reset_setting"
+                android:textColor="@color/red"
+                android:textStyle="bold"
+                android:id="@+id/button6" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/settings_height" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="@string/time_period_month"
+                android:id="@+id/months"
+                android:layout_below="@+id/weeks"
+                android:layout_alignParentStart="true" />
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:ems="10"
+                android:id="@+id/editText6"
+                android:layout_weight="1" />
+
+            <Button
+                android:layout_width="@dimen/x_size"
+                android:layout_height="@dimen/x_size"
+                android:text="@string/reset_setting"
+                android:textColor="@color/red"
+                android:textStyle="bold"
+                android:id="@+id/button7" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+</RelativeLayout>

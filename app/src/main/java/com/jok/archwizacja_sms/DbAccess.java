@@ -32,16 +32,17 @@ public class DbAccess {
 
     public DbAccess(final Context ctx) {
         this.ctx = ctx;
-        smsData = getXml(0, SMS_TYPE);
-        contactData = getXml(0, CONTACT_TYPE);
+//        smsData = getXml(0, SMS_TYPE);
+//        contactData = getXml(0, CONTACT_TYPE);
     }
 
     String[] getXml(long date, int type) {
         String[] data;
+        Uri uri = (type == SMS_TYPE) ? SMS_URI : PPL_URI;
         String tag = (type == SMS_TYPE) ? "sms" : "contact";
         String mSelection = (type == SMS_TYPE) ? "date > ?" : "CONTACT_LAST_UPDATED_TIMESTAMP > ?";
         String[] mSelectionArgs = { String.valueOf(date) };
-        Cursor cursor = ctx.getContentResolver().query(PPL_URI, null, mSelection, mSelectionArgs, null);
+        Cursor cursor = ctx.getContentResolver().query(uri, null, mSelection, mSelectionArgs, null);
         if (cursor.getCount() > 0) {
             int app_id = 1;
             data = new String[cursor.getCount()];
@@ -201,12 +202,4 @@ public class DbAccess {
         return contactData;
     }
 
-    public boolean checkDataChange(long date) {
-        String mSelection = "date > ?";
-        String[] mSelectionArgs = { String.valueOf(date) };
-        Cursor smsC = ctx.getContentResolver().query(SMS_URI,null, mSelection, mSelectionArgs, null);
-        boolean status = (smsC.getCount() > 0);
-        smsC.close();
-        return status;
-    }
 }

@@ -38,10 +38,10 @@ public class MainActivity extends ActionBarActivity {
         resultReceiver = new MyResultReceiver(null);
         Intent intent = new Intent(this, MyService.class);
         intent.putExtra("receiver", resultReceiver);
-    //    startService(intent);
+        startService(intent);
 
-        dba = new DbAccess(this);
-        createThreadList();
+ //       dba = new DbAccess(this);
+ //       createThreadList();
     }
 
     @Override
@@ -132,7 +132,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void printXml() {
-        String[] smsData = dba.getXmlSms(0);
+        String[] smsData = dba.getXml(0, dba.SMS_TYPE);
         ScrollView sv = new ScrollView(this);
         TextView tv = new TextView(this);
         tv.setText(smsData[0]);

@@ -2,21 +2,16 @@ package com.jok.archwizacja_sms;
 
 import android.app.Fragment;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
-import android.widget.TextView;
-
-import java.io.File;
-import java.io.PrintWriter;
 
 
 public class SmsBackup extends Fragment{
-    public Switch swch;
+    public Switch swich;
     public Button bt;
 
     private int[] t_id;
@@ -26,11 +21,11 @@ public class SmsBackup extends Fragment{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         View view=inflater.inflate(R.layout.smsbackup_layout,container,false);
-        swch = (Switch) view.findViewById(R.id.switch1);
+        swich = (Switch) view.findViewById(R.id.switch1);
         bt = (Button) view.findViewById(R.id.button);
-        dba = new DbAccess(view.getContext());
+   //     dba = new DbAccess(view.getContext());
 
-        swch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        swich.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 checkSwitch();
@@ -40,7 +35,7 @@ public class SmsBackup extends Fragment{
     }
 
     public void checkSwitch(){
-        if(swch.isChecked()){}
+        if(swich.isChecked()){}
             /*
             smsData = dba.getXml(0,1);
             String filepath;

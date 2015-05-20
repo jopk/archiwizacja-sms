@@ -8,16 +8,21 @@
     <string name="action_main">Main</string>
     <string name="thread_sms">Thread</string>
 
+    <string name="reset_setting">X</string>
+
     <string name="service_settings">com.jok.archwizacja_sms.service_settings</string>
     <string name="last_sms_backup">sms_backup</string>
     <string name="last_contacts_backup">contacts_backup</string>
     <string name="time_period">time</string>
-    <string name="time_period_second">second</string>
-    <string name="time_period_minute">minute</string>
-    <string name="time_period_hour">hour</string>
-    <string name="time_period_day">hour</string>
-    <string name="time_period_week">week</string>
-    <string name="time_period_month">month</string>
+    <string name="time_period_second">seconds</string>
+    <string name="time_period_minute">minutes</string>
+    <string name="time_period_hour">hours</string>
+    <string name="time_period_day">days</string>
+    <string name="time_period_week">weeks</string>
+    <string name="time_period_month">months</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+
+    <string name="hello_world">Hello world!</string>
 
 
 
