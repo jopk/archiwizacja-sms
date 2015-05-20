@@ -34,14 +34,14 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+/*
         resultReceiver = new MyResultReceiver(null);
         Intent intent = new Intent(this, MyService.class);
         intent.putExtra("receiver", resultReceiver);
         startService(intent);
-
- //       dba = new DbAccess(this);
- //       createThreadList();
+*/
+        dba = new DbAccess(this);
+        createThreadList();
     }
 
     @Override

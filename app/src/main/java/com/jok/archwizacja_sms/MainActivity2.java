@@ -28,8 +28,8 @@ public class MainActivity2 extends ActionBarActivity {
         SmsBackup smsFrag = new SmsBackup();
         fragTransaction.replace(android.R.id.content, smsFrag);
         fragTransaction.commit();
-        Toast.makeText(this, Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/", Toast.LENGTH_LONG).show();
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -45,15 +45,17 @@ public class MainActivity2 extends ActionBarActivity {
 
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.Settings) {
-
+        Intent intent;
+        switch (id) {
+            case R.id.Settings:
+                intent = new Intent(getApplicationContext(), SettingsActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.SmsList:
+                intent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(intent);
+                break;
         }
-        else if (id == R.id.SmsList) {
-            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-            startActivity(intent);
-        }
-
         return super.onOptionsItemSelected(item);
     }
 }

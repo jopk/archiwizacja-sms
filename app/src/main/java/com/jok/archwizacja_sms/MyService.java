@@ -32,7 +32,6 @@ public class MyService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Toast.makeText(getApplicationContext(), "service is running", Toast.LENGTH_SHORT).show();
-        final Context context = getApplicationContext();
 
         new Thread(new Runnable() {
             @Override
@@ -44,28 +43,7 @@ public class MyService extends Service {
         this.flags = flags;
         this.startId = startId;
         this.resultReceiver = intent.getParcelableExtra("receiver");
-
-        int second = intent.getIntExtra(getString(R.string.time_period_second), 0);
-        int minute = intent.getIntExtra(getString(R.string.time_period_minute), 0);
-        int hour = intent.getIntExtra(getString(R.string.time_period_hour), 0);
-        int day = intent.getIntExtra(getString(R.string.time_period_day), 0);
-        int week = intent.getIntExtra(getString(R.string.time_period_week), 0);
-        int month = intent.getIntExtra(getString(R.string.time_period_month), 0);
-
-        time = getMiliseconds(second, minute, hour, day, week, month);
-
-        SharedPreferences sharedPref = context.getSharedPreferences(
-                getString(R.string.service_settings), Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-
-        editor.putInt(getString(R.string.time_period_second), second);
-        editor.putInt(getString(R.string.time_period_minute), minute);
-        editor.putInt(getString(R.string.time_period_hour), hour);
-        editor.putInt(getString(R.string.time_period_day), day);
-        editor.putInt(getString(R.string.time_period_week), week);
-        editor.putInt(getString(R.string.time_period_month), month);
-        editor.putLong(getString(R.string.time_period), time);
-        editor.apply();
+        this.time = intent.getLongExtra("time", NO_AUTO);
 
         return START_STICKY;
     }
@@ -134,8 +112,7 @@ public class MyService extends Service {
         SharedPreferences sharedPref = context.getSharedPreferences(
                 getString(R.string.service_settings), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putLong(getString(R.string.time_period), time);
-        editor.putLong(getString(R.string.last_sms_backup), 1);
+        editor.putLong(getString(R.string.last_sms_backup), last_sms_backup);
         editor.putLong(getString(R.string.last_contacts_backup), NO_BACKUP);
         editor.apply();
     }
@@ -145,12 +122,6 @@ public class MyService extends Service {
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-
-    private long getMiliseconds(int second, int minute, int hour, int day, int week, int month) {
-        return (((((month * 30) + (week * 7) + day) * 24 + hour) * 60 + minute) * 60 + second) * 1000;
-
     }
 
 }

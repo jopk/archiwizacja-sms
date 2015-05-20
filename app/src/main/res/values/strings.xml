@@ -9,6 +9,7 @@
     <string name="thread_sms">Thread</string>
 
     <string name="reset_setting">X</string>
+    <string name="default_setting">0</string>
 
     <string name="service_settings">com.jok.archwizacja_sms.service_settings</string>
     <string name="last_sms_backup">sms_backup</string>
@@ -23,8 +24,7 @@
     <string name="title_activity_settings">SettingsActivity</string>
 
     <string name="hello_world">Hello world!</string>
-
-
+    <string name="Save">Save</string>
 
 
 </resources>
