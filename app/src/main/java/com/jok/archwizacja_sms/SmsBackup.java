@@ -21,8 +21,8 @@ public class SmsBackup extends Fragment{
 
     private int[] t_id;
     private DbAccess dba;
-    private SmsData[] smsData;
-    private ContactData[] contactData;
+    private String[] smsData;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         View view=inflater.inflate(R.layout.smsbackup_layout,container,false);
@@ -40,8 +40,9 @@ public class SmsBackup extends Fragment{
     }
 
     public void checkSwitch(){
-        if(swch.isChecked()){
-            smsData = dba.prepareSmsData();
+        if(swch.isChecked()){}
+            /*
+            smsData = dba.getXml(0,1);
             String filepath;
             String filename;
             String filebody;
@@ -67,6 +68,7 @@ public class SmsBackup extends Fragment{
         else{
 
         }
+
     }
 
     private int getNumsOfMsgs(){
@@ -80,5 +82,6 @@ public class SmsBackup extends Fragment{
             e.printStackTrace();
         }
         return length;
+        */
     }
 }

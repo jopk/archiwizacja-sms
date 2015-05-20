@@ -34,7 +34,6 @@ public class SmsList extends Activity {
 
     @Override
     protected void onDestroy() {
-        dba.close();
         System.gc();
         super.onDestroy();
     }

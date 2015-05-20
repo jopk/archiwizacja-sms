@@ -46,7 +46,6 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     protected void onDestroy() {
-        dba.close();
         System.gc();
         super.onDestroy();
     }
@@ -111,7 +110,8 @@ public class MainActivity extends ActionBarActivity {
             case R.id.action_settings:
                 return true;
             case R.id.action_sms:
-                showTableScheme(Uri.parse("content://sms/"));
+                printXml();
+//                showTableScheme(Uri.parse("content://sms/"));
                 return true;
             case R.id.action_thread:
                 showTableScheme(Uri.parse("content://sms/conversations"));
@@ -131,39 +131,48 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+    private void printXml() {
+        String[] smsData = dba.getXmlSms(0);
+        ScrollView sv = new ScrollView(this);
+        TextView tv = new TextView(this);
+        tv.setText(smsData[0]);
+        sv.addView(tv);
+        setContentView(sv);
+    }
+
     private void showTableScheme(Uri uri) {
         ScrollView sv = new ScrollView(this);
         TextView tv = new TextView(this);
         Cursor c = getContentResolver().query(uri, null, null, null, null);
-        String sms = "";
+        String text = "";
         if(c.moveToNext()) {
             for (int i = 0; i < c.getColumnCount(); i++) {
-                sms += i + ". " + c.getColumnName(i) + " : ";
+                text += i + ". " + c.getColumnName(i) + " : ";
                 switch (c.getType(i)) {
                     case Cursor.FIELD_TYPE_BLOB:
-                        sms += "blob";
+                        text += "blob";
                         break;
                     case Cursor.FIELD_TYPE_FLOAT:
-                        sms += "float";
+                        text += "float";
                         break;
                     case Cursor.FIELD_TYPE_INTEGER:
-                        sms += "integer";
+                        text += "integer";
                         break;
                     case Cursor.FIELD_TYPE_STRING:
-                        sms += "string";
+                        text += "string";
                         break;
                     case Cursor.FIELD_TYPE_NULL:
-                        sms += "null";
+                        text += "null";
                         break;
                 }
-                sms += "\n";
+                text += "\n";
             }
         }
         else {
-            sms += "data is null";
+            text += "data is null";
         }
         c.close();
-        tv.setText(sms);
+        tv.setText(text);
         sv.addView(tv);
         setContentView(sv);
     }

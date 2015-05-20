@@ -1,6 +1,13 @@
 package com.jok.archwizacja_sms;
 
 
+import android.util.Xml;
+
+import org.xmlpull.v1.XmlSerializer;
+
+import java.io.IOException;
+import java.io.StringWriter;
+
 class SmsData {
     private Integer app_sms_id;
     private Integer _id;
