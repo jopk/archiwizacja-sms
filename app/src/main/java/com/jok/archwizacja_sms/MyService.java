@@ -1,7 +1,6 @@
 package com.jok.archwizacja_sms;
 
 
-import android.app.Activity;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.os.ResultReceiver;
 import android.widget.Toast;
+import java.util.Calendar;
 
 public class MyService extends Service {
 
@@ -71,11 +71,19 @@ public class MyService extends Service {
                         String[] smsData = (last_sms_backup != NO_BACKUP) ? dba.getXml(last_sms_backup, dba.SMS_TYPE) : null;
                         if (smsData != null) {
                             test = true;
-                            new Compress(null).writeFiles(smsData).zip();
+                            Compress compress = new Compress(null);
+                            compress.writeFiles(smsData);
+                            compress.zip();
+                            Calendar calendar = Calendar.getInstance();
+                            last_sms_backup = calendar.getTimeInMillis();
                         }
                         String[] pplData = (last_contacts_backup != NO_BACKUP) ? dba.getXml(last_contacts_backup, dba.CONTACT_TYPE) : null;
                         if (pplData != null) {
-                            new Compress(null).writeFiles(pplData).zip();
+                            Compress compress = new Compress(null);
+                            compress.writeFiles(pplData);
+                            compress.zip();
+                            Calendar calendar = Calendar.getInstance();
+                            last_contacts_backup = calendar.getTimeInMillis();
                         }
                         Thread.sleep(time);
                     } while (time != NO_AUTO);

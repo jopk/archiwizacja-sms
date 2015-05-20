@@ -6,9 +6,7 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import android.provider.Telephony;
 import android.util.Xml;
-
 import org.xmlpull.v1.XmlSerializer;
-
 import java.io.IOException;
 import java.io.StringWriter;
 import java.sql.Date;
@@ -27,8 +25,8 @@ public class DbAccess {
 
     private Context ctx;
 
-    private String[] smsData;
-    private String[] contactData;
+//    private String[] smsData;
+//    private String[] contactData;
 
     public DbAccess(final Context ctx) {
         this.ctx = ctx;
@@ -193,7 +191,7 @@ public class DbAccess {
             return "error";
         }
     }
-
+/*
     public String[] getSmsData() {
         return smsData;
     }
@@ -201,5 +199,5 @@ public class DbAccess {
     public String[] getContactData() {
         return contactData;
     }
-
+*/
 }

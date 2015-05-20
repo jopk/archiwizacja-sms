@@ -21,7 +21,7 @@ public class Compress {
         this.files=files;
     }
 
-    public Compress writeFiles(String[] smsData) {
+    public void writeFiles(String[] smsData) {
         files = new String[smsData.length];
         String filepath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/";
         File dir = new File(filepath);
@@ -41,8 +41,6 @@ public class Compress {
         } catch(Exception e){
             throw new RuntimeException(e);
         }
-        // bo następne wywołanie to zip ale to głupie
-        return this;
     }
 
     public void zip() {
