@@ -7,6 +7,7 @@ import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -25,6 +26,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.frag);
         /*Configuration config = getResources().getConfiguration();
         FragmentManager fragManager = getFragmentManager();
         FragmentTransaction fragTransaction = fragManager.beginTransaction();
@@ -38,9 +40,6 @@ public class MainActivity extends ActionBarActivity {
                 switchCheck();
             }
         });
-
-
-        Toast.makeText(this, Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/", Toast.LENGTH_LONG).show();
     }
 
     public void switchCheck(){
@@ -51,6 +50,7 @@ public class MainActivity extends ActionBarActivity {
             startService(intent);
         }
         else {
+            Toast.makeText(this, "stop", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, MyService.class);
             stopService(intent);
         }

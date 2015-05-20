@@ -38,7 +38,7 @@ public class Compress {
                 pw.flush();
                 pw.close();
             }
-        } catch(Exception e){
+        } catch(Exception e) {
             throw new RuntimeException(e);
         }
     }

@@ -43,7 +43,6 @@ public class MyService extends Service {
         this.flags = flags;
         this.startId = startId;
         this.resultReceiver = intent.getParcelableExtra("receiver");
-        this.time = intent.getLongExtra("time", NO_AUTO);
 
         return START_STICKY;
     }
@@ -56,9 +55,10 @@ public class MyService extends Service {
         final Context context = getApplicationContext();
         SharedPreferences sharedPref = context.getSharedPreferences(
                 getString(R.string.service_settings), Context.MODE_PRIVATE);
-        last_sms_backup = sharedPref.getLong(getString(R.string.last_sms_backup), 1);
-        last_contacts_backup = sharedPref.getLong(getString(R.string.last_contacts_backup), NO_BACKUP);
-        time = sharedPref.getLong(getString(R.string.time_period), NO_AUTO);
+        this.last_sms_backup = sharedPref.getLong(getString(R.string.last_sms_backup), 1);
+        this.last_contacts_backup = sharedPref.getLong(getString(R.string.last_contacts_backup), NO_BACKUP);
+        this.time = sharedPref.getLong(getString(R.string.time_period), NO_AUTO);
+
 
         thread = new Thread(new Runnable() {
             @Override
@@ -99,11 +99,10 @@ public class MyService extends Service {
     @Override
     public void onDestroy() {
         if (test) {
-            Toast.makeText(getApplicationContext(), "true", Toast.LENGTH_SHORT).show();
-
+            Toast.makeText(getApplicationContext(), "true=" + String.valueOf(time), Toast.LENGTH_SHORT).show();
         }
         else {
-            Toast.makeText(getApplicationContext(), "false", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "false=" + String.valueOf(time), Toast.LENGTH_SHORT).show();
         }
 //        Toast.makeText(getApplicationContext(), "service is dying", Toast.LENGTH_SHORT).show();
         time = NO_AUTO; // kills thread
@@ -123,6 +122,7 @@ public class MyService extends Service {
         editor.putLong(getString(R.string.last_sms_backup), last_sms_backup);
         editor.putLong(getString(R.string.last_contacts_backup), NO_BACKUP);
         editor.apply();
+        super.onDestroy();
     }
 
 

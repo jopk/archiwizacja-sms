@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 
 public class SettingsActivity extends ActionBarActivity {
@@ -60,6 +61,9 @@ public class SettingsActivity extends ActionBarActivity {
                 Integer.parseInt(getString(R.string.default_setting)));
         int month = sharedPref.getInt(getString(R.string.time_period_month),
                 Integer.parseInt(getString(R.string.default_setting)));
+
+
+
 
         EditText output;
         output = (EditText) findViewById(R.id.edit_seconds);
