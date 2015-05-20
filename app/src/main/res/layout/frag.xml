@@ -1,14 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="horizontal">
+    android:background="@android:color/darker_gray">
 
-    <fragment
-        android:name="com.jok.archwizacja_sms.SmsBackup"
-        android:id="@+id/fragment1"
-        android:layout_weight="1"
-        android:layout_width="0dp"
-        android:layout_height="match_parent" />
-</LinearLayout>
+    <Switch
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text=" Automatyczne wykonywanie \n kopii wiadomości sms"
+        android:id="@+id/switch1"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="42dp"
+        android:checked="false"
+        android:textSize="18dp"
+        android:onClick="checkSwitch" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Przywróć"
+        android:id="@+id/button"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:background="#ccc"
+        android:textSize="22dp" />
+
+</RelativeLayout>

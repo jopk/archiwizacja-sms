@@ -1,7 +1,5 @@
 package com.jok.archwizacja_sms;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -9,10 +7,15 @@ import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.Toast;
 
 
 public class MainActivity2 extends ActionBarActivity {
+
+    MyResultReceiver resultReceiver;
+    private Switch swch;
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -22,12 +25,34 @@ public class MainActivity2 extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Configuration config = getResources().getConfiguration();
+        /*Configuration config = getResources().getConfiguration();
         FragmentManager fragManager = getFragmentManager();
         FragmentTransaction fragTransaction = fragManager.beginTransaction();
         SmsBackup smsFrag = new SmsBackup();
         fragTransaction.replace(android.R.id.content, smsFrag);
-        fragTransaction.commit();
+        fragTransaction.commit();*/
+        swch = (Switch) findViewById(R.id.switch1);
+        swch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                switchCheck();
+            }
+        });
+
+
+        Toast.makeText(this, Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/", Toast.LENGTH_LONG).show();
+    }
+
+    public void switchCheck(){
+        if(swch.isChecked()){
+            resultReceiver = new MyResultReceiver(null);
+            Intent intent = new Intent(this, MyService.class);
+            intent.putExtra("receiver", resultReceiver);
+            startService(intent);
+        }
+        else{
+            //TO-DO: else?
+        }
     }
 
     @Override
