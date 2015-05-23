@@ -4,11 +4,13 @@ import android.os.Environment;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -21,11 +23,13 @@ public class Compress {
     public String[] files;
     private String zipFile = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/" + "compressedsms.zip";
     private String filepath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/";
+
+
     public Compress(String[] files){
         this.files=files;
     }
 
-    public Compress writeFiles(String[] smsData) {
+    public void writeFiles(String[] smsData) {
         files = new String[smsData.length];
         File dir = new File(filepath);
         if (!dir.exists())
@@ -41,73 +45,75 @@ public class Compress {
                 pw.flush();
                 pw.close();
             }
-        } catch(Exception e){
+        } catch(Exception e) {
             throw new RuntimeException(e);
         }
-        // bo następne wywołanie to zip ale to głupie
-        return this;
+    }
+
+    public String[] filesToString(){
+        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress";
+        String[] filesbody = new String [files.length];
+        File filepath = new File(path);
+        int fileIter = 0;
+        if (!filepath.exists())
+            filepath.mkdir();
+        try{
+            for(String file : files){
+                file =Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/" + file;
+                FileInputStream fis = new FileInputStream(file);
+                InputStreamReader isr = new InputStreamReader(fis);
+                BufferedReader bufferedReader = new BufferedReader(isr);
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while((line = bufferedReader.readLine())!=null){
+                    sb.append(line);
+                }
+                filesbody[fileIter]=sb.toString();
+                fileIter++;
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return filesbody;
     }
 
     public void zip() {
         String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/";
         File filepath = new File(path);
+        File compFile = new File(zipFile);
         if (!filepath.exists())
             filepath.mkdir();
-        try {
-            BufferedInputStream origin = null;
-            ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(zipFile)));
-
-            byte data[] = new byte[BUFFER];
-            for(String file : files) {
-                file = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/" + file;
-                FileInputStream fi = new FileInputStream(file);
-                origin = new BufferedInputStream(fi, BUFFER);
-                ZipEntry entry = new ZipEntry(file.substring(file.lastIndexOf("/") + 1));
-                out.putNextEntry(entry);
-                int count;
-                while ((count = origin.read(data, 0, BUFFER)) != -1) {
-                    out.write(data, 0, count);
-                }
-                origin.close();
-            }
-            out.close();
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        /*else {
+        if(compFile.exists()){
             try {
-                ZipFile war = new ZipFile(zipFile);
-                ZipOutputStream append = new ZipOutputStream(new FileOutputStream(Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/" + "append.zip"));
+                BufferedInputStream origin = null;
+                ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(zipFile)));
 
-                // first, copy contents from existing war
-                Enumeration<? extends ZipEntry> entries = war.entries();
-
-                while (entries.hasMoreElements()) {
-                    ZipEntry e = entries.nextElement();
-                    append.putNextEntry(e);
-                    if (!e.isDirectory()) {
-                        copy(war.getInputStream(e), append);
+                byte data[] = new byte[BUFFER];
+                for(String file : files) {
+                    file = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/" + file;
+                    FileInputStream fi = new FileInputStream(file);
+                    origin = new BufferedInputStream(fi, BUFFER);
+                    ZipEntry entry = new ZipEntry(file.substring(file.lastIndexOf("/") + 1));
+                    out.putNextEntry(entry);
+                    int count;
+                    while ((count = origin.read(data, 0, BUFFER)) != -1) {
+                        out.write(data, 0, count);
                     }
-                    append.closeEntry();
+                    origin.close();
                 }
+                out.close();
 
-
-                // now append some extra content
-                ZipEntry e = new ZipEntry(fileName2);
-                append.putNextEntry(e);
-                append.write("42\n".getBytes());
-                append.closeEntry();
-
-                // close
-                war.close();
-                append.close();
-            }catch (Exception e){
-                e.printStackTrace();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
-
-        }*/
+        }
+        else {
+            appendZip();
+        }
     }
+
+    public void appendZip(){
+        }
     public void unzip(){
         InputStream fis;
         ZipInputStream zis;
