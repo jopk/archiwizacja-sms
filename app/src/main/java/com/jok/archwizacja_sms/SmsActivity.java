@@ -2,15 +2,22 @@ package com.jok.archwizacja_sms;
 
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.widget.ListView;
 
-public class SmsList extends Activity {
+public class SmsActivity extends Activity {
 
     private DbAccess dba;
 
     String address;
     int t_id;
+
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
