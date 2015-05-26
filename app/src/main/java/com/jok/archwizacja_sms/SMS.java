@@ -34,8 +34,8 @@ public final class SMS {
         public final String address;
         public final int m_size;
         public final int person;
-        public final int date;
-        public final int date_sent;
+        public final long date;
+        public final long date_sent;
         public final int protocol;
         public final int read;
         public final int status;
@@ -51,7 +51,7 @@ public final class SMS {
         public final int star;
         public final int pri;
 
-        public Data(int id, int thread_id, String address, int m_size, int person, int date, int date_sent, int protocol, int read, int status, int type, int reply_path_present, String subject, String body, String service_center, int locked, int sim_id, int error_code, int seen, int star, int pri) {
+        public Data(int id, int thread_id, String address, int m_size, int person, long date, long date_sent, int protocol, int read, int status, int type, int reply_path_present, String subject, String body, String service_center, int locked, int sim_id, int error_code, int seen, int star, int pri) {
             _id = id;
             this.thread_id = thread_id;
             this.address = address;

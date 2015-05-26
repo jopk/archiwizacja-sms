@@ -77,6 +77,8 @@ public class MyService extends Service {
                             Calendar calendar = Calendar.getInstance();
                             last_sms_backup = calendar.getTimeInMillis();
                         }
+                        else
+                            test = false;
                         String[] pplData = (last_contacts_backup != NO_BACKUP) ? dba.getXml(last_contacts_backup, dba.CONTACT_TYPE) : null;
                         if (pplData != null) {
                             Compress compress = new Compress();

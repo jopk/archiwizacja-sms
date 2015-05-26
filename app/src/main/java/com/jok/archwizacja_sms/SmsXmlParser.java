@@ -1,31 +1,40 @@
 package com.jok.archwizacja_sms;
 
 
+import android.content.Context;
 import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.StringReader;
 
 public class SmsXmlParser {
     private static final String ns = null;
 
-    public SMS.Data parse(InputStream in) throws XmlPullParserException, IOException {
+    private Context ctx = null;
+
+    public SmsXmlParser(Context ctx) {
+        this.ctx = ctx;
+    }
+
+    public SMS.Data parse(String file) throws XmlPullParserException, IOException {
+        StringReader sr = new StringReader(file);
         try {
             XmlPullParser parser = Xml.newPullParser();
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-            parser.setInput(in, null);
+            parser.setInput(sr);
             parser.nextTag();
             return readSms(parser);
         } finally {
-            in.close();
+            sr.close();
         }
     }
 
     private SMS.Data readSms(XmlPullParser parser) throws XmlPullParserException, IOException {
-        int id = 0, thread_id = 0, m_size = 0, person = 0, date = 0, date_sent = 0, protocol = 0, read = 0, status = 0, type = 0, reply_path_present = 0, locked = 0, sim_id = 0, error_code = 0, seen = 0, star = 0, pri = 0;
+        long date = 0, date_sent = 0;
+        int id = 0, thread_id = 0, m_size = 0, person = 0, protocol = 0, read = 0, status = 0, type = 0, reply_path_present = 0, locked = 0, sim_id = 0, error_code = 0, seen = 0, star = 0, pri = 0;
         String address = null, subject = null, body = null, service_center = null;
         parser.require(XmlPullParser.START_TAG, ns, "sms");
         while (parser.next() != XmlPullParser.END_TAG) {
@@ -46,10 +55,10 @@ public class SmsXmlParser {
                     person = readInt(parser, name);
                     break;
                 case SMS.DATE:
-                    date = readInt(parser, name);
+                    date = readLong(parser, name);
                     break;
                 case SMS.DATE_SENT:
-                    date_sent = readInt(parser, name);
+                    date_sent = readLong(parser, name);
                     break;
                 case SMS.PROTOCOL:
                     protocol = readInt(parser, name);
@@ -108,7 +117,14 @@ public class SmsXmlParser {
         parser.require(XmlPullParser.START_TAG, ns, name);
         String text = readText(parser);
         parser.require(XmlPullParser.END_TAG, ns, name);
-        return Integer.parseInt(text);
+        return (text.equals("null")) ? Integer.MIN_VALUE : Integer.parseInt(text);
+    }
+
+    private long readLong(XmlPullParser parser, String name) throws IOException, XmlPullParserException {
+        parser.require(XmlPullParser.START_TAG, ns, name);
+        String text = readText(parser);
+        parser.require(XmlPullParser.END_TAG, ns, name);
+        return (text.equals("null")) ? Long.MIN_VALUE : Long.parseLong(text);
     }
 
     private String readString(XmlPullParser parser, String name) throws IOException, XmlPullParserException {

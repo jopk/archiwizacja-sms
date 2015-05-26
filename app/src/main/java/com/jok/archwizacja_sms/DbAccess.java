@@ -16,12 +16,12 @@ import java.text.SimpleDateFormat;
 
 public class DbAccess {
 
-    private final Uri SMS_URI = Uri.parse("content://sms/");
-    private final Uri THREAD_URI = Uri.parse("content://sms/conversations");
-    private final Uri PPL_URI = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+    public static final Uri SMS_URI = Uri.parse("content://sms/");
+    public static final Uri THREAD_URI = Uri.parse("content://sms/conversations");
+    public static final Uri PPL_URI = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
 
-    public final int SMS_TYPE = 1;
-    public final int CONTACT_TYPE = 2;
+    public static final int SMS_TYPE = 1;
+    public static final int CONTACT_TYPE = 2;
 
     private Context ctx;
 

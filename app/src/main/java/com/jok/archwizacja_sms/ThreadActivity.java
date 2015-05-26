@@ -1,11 +1,13 @@
 package com.jok.archwizacja_sms;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.os.Bundle;
+import android.provider.Telephony;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,7 +16,11 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 
 
 public class ThreadActivity extends ActionBarActivity {
@@ -112,8 +118,8 @@ public class ThreadActivity extends ActionBarActivity {
                 startActivity(intent);
                 return true;
             case R.id.action_sms:
-//                printXml();
-                showTableScheme(Uri.parse("content://sms/"));
+                restoreSms();
+//                showTableScheme(Uri.parse("content://sms/"));
                 return true;
             case R.id.action_thread:
                 showTableScheme(Uri.parse("content://sms/conversations"));
@@ -132,11 +138,68 @@ public class ThreadActivity extends ActionBarActivity {
         }
     }
 
-    private void printXml() {
-        String[] smsData = dba.getXml(0, dba.SMS_TYPE);
+    private void restoreSms() {
         ScrollView sv = new ScrollView(this);
         TextView tv = new TextView(this);
-        tv.setText(smsData[0]);
+        Compress compress = new Compress();
+        String files[] = compress.readFiles();
+        SmsXmlParser parser = new SmsXmlParser(this);
+        SMS.Data data = null;
+        try {
+            data = parser.parse(files[1]);
+        } catch (XmlPullParserException e) {
+            Toast.makeText(this, "XmlPullParserException", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            Toast.makeText(this, "IOException", Toast.LENGTH_SHORT).show();
+        }
+
+        String defaultSmsApp = Telephony.Sms.getDefaultSmsPackage(this);
+        Intent intent = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
+        intent.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, this.getPackageName());
+        startActivity(intent);
+        if (Telephony.Sms.getDefaultSmsPackage(this).equals(getPackageName()))
+            Toast.makeText(this, "udało się!", Toast.LENGTH_SHORT).show();
+        else
+            Toast.makeText(this, "lipa...", Toast.LENGTH_SHORT).show();
+
+        // TODO: tutaj restore
+        ContentValues values = new ContentValues();
+        values.put(SMS.ADDRESS, data.address);
+        values.put(SMS.THREAD_ID, data.thread_id);
+        values.put(SMS.BODY, "tralalalala");
+        values.put(SMS.TYPE, data.type);
+        getContentResolver().insert(DbAccess.SMS_URI, values);
+
+        Intent intent2 = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
+        intent2.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, defaultSmsApp);
+        startActivity(intent2);
+
+        String text = "";
+        if (data != null) {
+            text += SMS.ID + " : " + data._id + "\n";
+            text += SMS.THREAD_ID + " : " + data.thread_id + "\n";
+            text += SMS.ADDRESS + " : " + data.address + "\n";
+            text += SMS.M_SIZE + " : " + data.m_size + "\n";
+            text += SMS.PERSON + " : " + data.person + "\n";
+            text += SMS.DATE + " : " + data.date + "\n";
+            text += SMS.DATE_SENT + " : " + data.date_sent + "\n";
+            text += SMS.PROTOCOL + " : " + data.protocol + "\n";
+            text += SMS.READ + " : " + data.read + "\n";
+            text += SMS.STATUS + " : " + data.status + "\n";
+            text += SMS.TYPE + " : " + data.type + "\n";
+            text += SMS.REPLY_PATH_PRESENT + " : " + data.reply_path_present + "\n";
+            text += SMS.SUBJECT + " : " + data.subject + "\n";
+            text += SMS.BODY + " : " + data.body + "\n";
+            text += SMS.SERVICE_CENTER + " : " + data.service_center + "\n";
+            text += SMS.LOCKED + " : " + data.locked + "\n";
+            text += SMS.SIM_ID + " : " + data.sim_id + "\n";
+            text += SMS.ERROR_CODE + " : " + data.error_code + "\n";
+            text += SMS.SEEN + " : " + data.seen + "\n";
+            text += SMS.STAR + " : " + data.star + "\n";
+            text += SMS.PRI + " : " + data.pri + "\n";
+        }
+
+        tv.setText(text);
         sv.addView(tv);
         setContentView(sv);
     }
