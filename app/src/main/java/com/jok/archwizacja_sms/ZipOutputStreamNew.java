@@ -83,7 +83,7 @@ public class ZipOutputStreamNew extends DeflaterOutputStream implements ZipConst
      */
     public ZipOutputStreamNew(OutputStream out) {
         super(out, new Deflater(Deflater.DEFAULT_COMPRESSION, true));
-        usesDefaultDeflater = true;
+        boolean usesDefaultDeflater = true;
     }
 
     /**

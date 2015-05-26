@@ -112,8 +112,8 @@ public class ThreadActivity extends ActionBarActivity {
                 startActivity(intent);
                 return true;
             case R.id.action_sms:
-                printXml();
-//                showTableScheme(Uri.parse("content://sms/"));
+//                printXml();
+                showTableScheme(Uri.parse("content://sms/"));
                 return true;
             case R.id.action_thread:
                 showTableScheme(Uri.parse("content://sms/conversations"));
@@ -123,7 +123,6 @@ public class ThreadActivity extends ActionBarActivity {
                 return true;
             case R.id.action_contacts:
                   showTableScheme(ContactsContract.CommonDataKinds.Phone.CONTENT_URI);
-//                showTableScheme(ContactsContract.Contacts.CONTENT_URI);
                 return true;
             case R.id.action_main:
                 createThreadList();
