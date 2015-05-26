@@ -71,17 +71,17 @@ public class MyService extends Service {
                         String[] smsData = (last_sms_backup != NO_BACKUP) ? dba.getXml(last_sms_backup, dba.SMS_TYPE) : null;
                         if (smsData != null) {
                             test = true;
-                            Compress compress = new Compress(null);
-                            compress.writeFiles(smsData);
-                            compress.zip();
+                            Compress compress = new Compress();
+                            String[] files = compress.writeFiles(smsData);
+                            compress.zip(files);
                             Calendar calendar = Calendar.getInstance();
                             last_sms_backup = calendar.getTimeInMillis();
                         }
                         String[] pplData = (last_contacts_backup != NO_BACKUP) ? dba.getXml(last_contacts_backup, dba.CONTACT_TYPE) : null;
                         if (pplData != null) {
-                            Compress compress = new Compress(null);
-                            compress.writeFiles(pplData);
-                            compress.zip();
+                            Compress compress = new Compress();
+                            String[] files = compress.writeFiles(pplData);
+                            compress.zip(files);
                             Calendar calendar = Calendar.getInstance();
                             last_contacts_backup = calendar.getTimeInMillis();
                         }

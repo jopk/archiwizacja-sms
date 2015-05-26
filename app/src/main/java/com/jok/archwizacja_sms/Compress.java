@@ -7,13 +7,11 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.util.Vector;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -22,33 +20,23 @@ import java.util.zip.ZipOutputStream;
 public class Compress {
 
     private static final int BUFFER = 1024;
-    public String[] files;
-    private String zipFile = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/" + "compressedsms.zip";
-    private String filepath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/";
-    ZipOutputStream out;
-    ZipEntry entry;
+    private String ZIPFILE = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/" + "compressedsms.zip";
+    private String FILEPATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/";
 
-    public Compress(String[] files){
-        this.files=files;
-        try {
-            FileOutputStream dest = new FileOutputStream(zipFile);
-            out = new ZipOutputStream(new BufferedOutputStream(dest));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
 
-    public void writeFiles(String[] smsData) {
-        files = new String[smsData.length];
-        File dir = new File(filepath);
+    public Compress() {}
+
+    public String[] writeFiles(String[] smsData) {
+        String[] files = new String[smsData.length];
+        File dir = new File(FILEPATH);
         if (!dir.exists())
             dir.mkdir();
         PrintWriter pw;
         try {
             for(int i = 0; i < smsData.length; i++) {
-                filepath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/";
+                FILEPATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/";
                 files[i] = "sms"+i+".xml";
-                File file = new File(filepath+files[i]);
+                File file = new File(FILEPATH + files[i]);
                 pw = new PrintWriter(file);
                 pw.write(smsData[i]);
                 pw.flush();
@@ -57,48 +45,47 @@ public class Compress {
         } catch(Exception e) {
             throw new RuntimeException(e);
         }
+        return files;
     }
 
-    public String[] filesToString(){
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/";
-        File filepath = new File(path);
-        File fileslist[] = filepath.listFiles();
-        String[] filesbody = new String [fileslist.length];
-        int fileIter = 0;
+    public String[] readFiles() {
+        File fileslist[] = new File(FILEPATH).listFiles();
+        String[] files = new String[fileslist.length];
 
-        if (!filepath.exists())
-            filepath.mkdir();
-        try{
-            for(String file : files){
-                file =Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/" + file;
-                FileInputStream fis = new FileInputStream(file);
-                InputStreamReader isr = new InputStreamReader(fis);
-                BufferedReader bufferedReader = new BufferedReader(isr);
-                StringBuilder sb = new StringBuilder();
-                String line;
-                while((line = bufferedReader.readLine())!=null){
-                    sb.append(line);
+        try {
+            for (int i = 0; i < fileslist.length; i++) {
+                String name = fileslist[i].getName();
+                if (name.matches("sms[0-9]*[.]xml")) {
+                    String file = FILEPATH + name;
+                    FileInputStream fis = new FileInputStream(file);
+                    InputStreamReader isr = new InputStreamReader(fis);
+                    BufferedReader bufferedReader = new BufferedReader(isr);
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while((line = bufferedReader.readLine())!=null){
+                        sb.append(line);
+                    }
+                    files[i] = sb.toString();
                 }
-                filesbody[fileIter]=sb.toString();
-                fileIter++;
             }
-        }catch (Exception e){
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        return filesbody;
+        return files;
     }
 
-    public void zip() {
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/";
-        File filepath = new File(path);
-        File compFile = new File(zipFile);
+    public void zip(String[] files) {
+        File filepath = new File(FILEPATH);
+        File compFile = new File(ZIPFILE);
 
         if (!filepath.exists())
             filepath.mkdir();
         if(compFile.exists()){
             try {
                 BufferedInputStream origin = null;
-               // out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(zipFile)));
+                FileOutputStream dest = new FileOutputStream(ZIPFILE);
+                ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(dest));
 
                 byte data[] = new byte[BUFFER];
                 for(String file : files) {
@@ -125,7 +112,7 @@ public class Compress {
     }
 
     public void appendZip(){                //???????????????????
-        boolean havePreviousData = false;
+/*        boolean havePreviousData = false;
         Vector<ZipOutputStreamNew.XEntry> tempXentries = new Vector<>();
         long tempWritten = 0;
         int fileIter=0;
@@ -133,7 +120,7 @@ public class Compress {
             for(String file:files) {
                 //beginning of initial setup stuff
                 BufferedInputStream origin = null;
-                FileOutputStream dest = new FileOutputStream(zipFile,true);
+                FileOutputStream dest = new FileOutputStream(ZIPFILE,true);
                 ZipOutputStreamNew out = new ZipOutputStreamNew(new BufferedOutputStream(dest));
                 byte data[] = new byte[BUFFER];
                 if (havePreviousData) {
@@ -175,6 +162,7 @@ public class Compress {
         }catch (Exception e){
             e.printStackTrace();
         }
+        */
     }
 
     public void unzip(){
@@ -182,7 +170,7 @@ public class Compress {
         ZipInputStream zis;
         try {
             String filename;
-            fis = new FileInputStream(zipFile);
+            fis = new FileInputStream(ZIPFILE);
             zis = new ZipInputStream(new BufferedInputStream(fis));
             ZipEntry zipEntry;
             byte[] data = new byte[BUFFER];
@@ -194,12 +182,12 @@ public class Compress {
                 // Need to create directories if not exists, or
                 // it will generate an Exception...
                 if (zipEntry.isDirectory()) {
-                    File fmd = new File(filepath + filename);
+                    File fmd = new File(FILEPATH + filename);
                     fmd.mkdirs();
                     continue;
                 }
 
-                FileOutputStream fos = new FileOutputStream(filepath + filename);
+                FileOutputStream fos = new FileOutputStream(FILEPATH + filename);
 
                 while ((count = zis.read(data)) != -1) {
                     fos.write(data, 0, count);
