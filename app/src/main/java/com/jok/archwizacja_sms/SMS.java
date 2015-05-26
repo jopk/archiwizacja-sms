@@ -29,7 +29,6 @@ public final class SMS {
     private SMS() {}
 
     public static class Data {
-        public final boolean full;
         public final int _id;
         public final int thread_id;
         public final String address;
@@ -52,33 +51,7 @@ public final class SMS {
         public final int star;
         public final int pri;
 
-        public Data(int id, int thread_id, String address, int date, int type, String body) {
-            full = false;
-            _id = id;
-            this.thread_id = thread_id;
-            this.address = address;
-            this.date = date;
-            this.type = type;
-            this.body = body;
-            m_size = 0;
-            person = 0;
-            date_sent = 0;
-            protocol = 0;
-            read = 0;
-            status = 0;
-            reply_path_present = 0;
-            subject = null;
-            service_center = null;
-            locked = 0;
-            sim_id = 0;
-            error_code = 0;
-            seen = 0;
-            star = 0;
-            pri = 0;
-        }
-
         public Data(int id, int thread_id, String address, int m_size, int person, int date, int date_sent, int protocol, int read, int status, int type, int reply_path_present, String subject, String body, String service_center, int locked, int sim_id, int error_code, int seen, int star, int pri) {
-            full = true;
             _id = id;
             this.thread_id = thread_id;
             this.address = address;
