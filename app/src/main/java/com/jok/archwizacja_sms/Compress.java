@@ -26,19 +26,19 @@ public class Compress {
 
     public Compress() {}
 
-    public String[] writeFiles(String[] smsData) {
-        String[] files = new String[smsData.length];
+    public String[] writeFiles(String[] data, int ammount) {
+        String[] files = new String[data.length];
         File dir = new File(FILEPATH);
         if (!dir.exists())
             dir.mkdir();
         PrintWriter pw;
         try {
-            for(int i = 0; i < smsData.length; i++) {
+            for(int i = ammount; i < ammount + data.length; i++) {
                 FILEPATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/";
                 files[i] = "sms"+i+".xml";
                 File file = new File(FILEPATH + files[i]);
                 pw = new PrintWriter(file);
-                pw.write(smsData[i]);
+                pw.write(data[i]);
                 pw.flush();
                 pw.close();
             }
@@ -55,7 +55,7 @@ public class Compress {
         try {
             for (int i = 0; i < fileslist.length; i++) {
                 String name = fileslist[i].getName();
-                if (name.matches("sms[0-9]*[.]xml")) {
+                if (name.endsWith(".xml")) {
                     String file = FILEPATH + name;
                     FileInputStream fis = new FileInputStream(file);
                     InputStreamReader isr = new InputStreamReader(fis);

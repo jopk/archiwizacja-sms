@@ -53,7 +53,7 @@ public class MyService extends Service {
     public  void onCreate() {
 
         final Context context = getApplicationContext();
-        SharedPreferences sharedPref = context.getSharedPreferences(
+        final SharedPreferences sharedPref = context.getSharedPreferences(
                 getString(R.string.service_settings), Context.MODE_PRIVATE);
         this.last_sms_backup = sharedPref.getLong(getString(R.string.last_sms_backup), 1);
         this.last_contacts_backup = sharedPref.getLong(getString(R.string.last_contacts_backup), NO_BACKUP);
@@ -71,9 +71,13 @@ public class MyService extends Service {
                         String[] smsData = (last_sms_backup != NO_BACKUP) ? dba.getXml(last_sms_backup, dba.SMS_TYPE) : null;
                         if (smsData != null) {
                             test = true;
+                            int sms_ammount = sharedPref.getInt("sms_app_id", 0);
                             Compress compress = new Compress();
-                            String[] files = compress.writeFiles(smsData);
+                            String[] files = compress.writeFiles(smsData, sms_ammount);
                             compress.zip(files);
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.putInt("sms_ammount", sms_ammount + files.length);
+                            editor.apply();
                             Calendar calendar = Calendar.getInstance();
                             last_sms_backup = calendar.getTimeInMillis();
                         }
@@ -81,8 +85,9 @@ public class MyService extends Service {
                             test = false;
                         String[] pplData = (last_contacts_backup != NO_BACKUP) ? dba.getXml(last_contacts_backup, dba.CONTACT_TYPE) : null;
                         if (pplData != null) {
+                            int ppl_ammount = 0;
                             Compress compress = new Compress();
-                            String[] files = compress.writeFiles(pplData);
+                            String[] files = compress.writeFiles(pplData, ppl_ammount);
                             compress.zip(files);
                             Calendar calendar = Calendar.getInstance();
                             last_contacts_backup = calendar.getTimeInMillis();

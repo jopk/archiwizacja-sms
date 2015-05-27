@@ -118,8 +118,8 @@ public class ThreadActivity extends ActionBarActivity {
                 startActivity(intent);
                 return true;
             case R.id.action_sms:
-                restoreSms();
-//                showTableScheme(Uri.parse("content://sms/"));
+//                restoreSms();
+                showTableScheme(Uri.parse("content://sms/"));
                 return true;
             case R.id.action_thread:
                 showTableScheme(Uri.parse("content://sms/conversations"));
@@ -157,23 +157,60 @@ public class ThreadActivity extends ActionBarActivity {
         Intent intent = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
         intent.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, this.getPackageName());
         startActivity(intent);
-        if (Telephony.Sms.getDefaultSmsPackage(this).equals(getPackageName()))
-            Toast.makeText(this, "udało się!", Toast.LENGTH_SHORT).show();
-        else
-            Toast.makeText(this, "lipa...", Toast.LENGTH_SHORT).show();
 
-        // TODO: tutaj restore
+        // TODO: przerobić SMS.Data dodać warunki i konwersje
         ContentValues values = new ContentValues();
-        values.put(SMS.ADDRESS, data.address);
-        values.put(SMS.THREAD_ID, data.thread_id);
-        values.put(SMS.BODY, "tralalalala");
-        values.put(SMS.TYPE, data.type);
+
+        if (!data._id.equals("null"))
+            values.put(SMS.ID, data._id);
+        if (!data.thread_id.equals("null"))
+            values.put(SMS.THREAD_ID, data.thread_id);
+        if (!data.address.equals("null"))
+            values.put(SMS.ADDRESS, data.address);
+        if (!data.m_size.equals("null"))
+            values.put(SMS.M_SIZE, data.m_size);
+        if (!data.person.equals("null"))
+            values.put(SMS.PERSON, data.person);
+        if (!data.date.equals("null"))
+            values.put(SMS.DATE, data.date);
+        if (!data.date_sent.equals("null"))
+            values.put(SMS.DATE_SENT, data.date_sent);
+        if (!data.protocol.equals("null"))
+            values.put(SMS.PROTOCOL, data.protocol);
+        if (!data.read.equals("null"))
+            values.put(SMS.READ, data.read);
+        if (!data.status.equals("null"))
+            values.put(SMS.STATUS, data.status);
+        if (!data.type.equals("null"))
+            values.put(SMS.TYPE, data.type);
+        if (!data.reply_path_present.equals("null"))
+            values.put(SMS.REPLY_PATH_PRESENT, data.reply_path_present);
+        if (!data.subject.equals("null"))
+            values.put(SMS.SUBJECT, data.subject);
+        if (!data.body.equals("null"))
+            values.put(SMS.BODY, data.body);
+        if (!data.service_center.equals("null"))
+            values.put(SMS.SERVICE_CENTER, data.service_center);
+        if (!data.locked.equals("null"))
+            values.put(SMS.LOCKED, data.locked);
+        if (!data.sim_id.equals("null"))
+            values.put(SMS.SIM_ID, data.sim_id);
+        if (!data.error_code.equals("null"))
+            values.put(SMS.ERROR_CODE, data.error_code);
+        if (!data.seen.equals("null"))
+            values.put(SMS.SEEN, data.seen);
+        if (!data.star.equals("null"))
+            values.put(SMS.STATUS, data.star);
+        if (!data.pri.equals("null"))
+            values.put(SMS.PRI, data.pri);
+
+
         getContentResolver().insert(DbAccess.SMS_URI, values);
 
         Intent intent2 = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
         intent2.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, defaultSmsApp);
         startActivity(intent2);
-
+/*
         String text = "";
         if (data != null) {
             text += SMS.ID + " : " + data._id + "\n";
@@ -202,6 +239,8 @@ public class ThreadActivity extends ActionBarActivity {
         tv.setText(text);
         sv.addView(tv);
         setContentView(sv);
+        */
+        showTableScheme(Uri.parse("content://sms/"));
     }
 
     private void showTableScheme(Uri uri) {
@@ -229,7 +268,7 @@ public class ThreadActivity extends ActionBarActivity {
                         text += "null";
                         break;
                 }
-                text += "\n";
+                text += " : " + c.getString(i) + "\n";
             }
         }
         else {

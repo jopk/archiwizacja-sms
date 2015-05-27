@@ -33,9 +33,7 @@ public class SmsXmlParser {
     }
 
     private SMS.Data readSms(XmlPullParser parser) throws XmlPullParserException, IOException {
-        long date = 0, date_sent = 0;
-        int id = 0, thread_id = 0, m_size = 0, person = 0, protocol = 0, read = 0, status = 0, type = 0, reply_path_present = 0, locked = 0, sim_id = 0, error_code = 0, seen = 0, star = 0, pri = 0;
-        String address = null, subject = null, body = null, service_center = null;
+        String date = null, date_sent = null, id = null, thread_id = null, m_size = null, person = null, protocol = null, read = null, status = null, type = null, reply_path_present = null, locked = null, sim_id = null, error_code = null, seen = null, star = null, pri = null, address = null, subject = null, body = null, service_center = null;
         parser.require(XmlPullParser.START_TAG, ns, "sms");
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG)
@@ -43,67 +41,67 @@ public class SmsXmlParser {
             String name = parser.getName();
             switch (name) {
                 case SMS.ID:
-                    id = readInt(parser, name);
+                    id = readText(parser, name);
                     break;
                 case SMS.THREAD_ID:
-                    thread_id = readInt(parser, name);
+                    thread_id = readText(parser, name);
                     break;
                 case SMS.M_SIZE:
-                    m_size = readInt(parser, name);
+                    m_size = readText(parser, name);
                     break;
                 case SMS.PERSON:
-                    person = readInt(parser, name);
+                    person = readText(parser, name);
                     break;
                 case SMS.DATE:
-                    date = readLong(parser, name);
+                    date = readText(parser, name);
                     break;
                 case SMS.DATE_SENT:
-                    date_sent = readLong(parser, name);
+                    date_sent = readText(parser, name);
                     break;
                 case SMS.PROTOCOL:
-                    protocol = readInt(parser, name);
+                    protocol = readText(parser, name);
                     break;
                 case SMS.READ:
-                    read = readInt(parser, name);
+                    read = readText(parser, name);
                     break;
                 case SMS.STATUS:
-                    status = readInt(parser, name);
+                    status = readText(parser, name);
                     break;
                 case SMS.TYPE:
-                    type = readInt(parser, name);
+                    type = readText(parser, name);
                     break;
                 case SMS.REPLY_PATH_PRESENT:
-                    reply_path_present = readInt(parser, name);
+                    reply_path_present = readText(parser, name);
                     break;
                 case SMS.LOCKED:
-                    locked = readInt(parser, name);
+                    locked = readText(parser, name);
                     break;
                 case SMS.SIM_ID:
-                    sim_id = readInt(parser, name);
+                    sim_id = readText(parser, name);
                     break;
                 case SMS.ERROR_CODE:
-                    error_code = readInt(parser, name);
+                    error_code = readText(parser, name);
                     break;
                 case SMS.SEEN:
-                    seen = readInt(parser, name);
+                    seen = readText(parser, name);
                     break;
                 case SMS.STAR:
-                    star = readInt(parser, name);
+                    star = readText(parser, name);
                     break;
                 case SMS.PRI:
-                    pri = readInt(parser, name);
+                    pri = readText(parser, name);
                     break;
                 case SMS.ADDRESS:
-                    address = readString(parser, name);
+                    address = readText(parser, name);
                     break;
                 case SMS.SUBJECT:
-                    subject = readString(parser, name);
+                    subject = readText(parser, name);
                     break;
                 case SMS.BODY:
-                    body = readString(parser, name);
+                    body = readText(parser, name);
                     break;
                 case SMS.SERVICE_CENTER:
-                    service_center = readString(parser, name);
+                    service_center = readText(parser, name);
                     break;
                 default:
                     skip(parser);
@@ -113,33 +111,14 @@ public class SmsXmlParser {
         return new SMS.Data(id, thread_id, address, m_size, person, date, date_sent, protocol, read, status, type, reply_path_present, subject, body, service_center, locked, sim_id, error_code, seen, star, pri);
     }
 
-    private int readInt(XmlPullParser parser, String name) throws IOException, XmlPullParserException {
+    private String readText(XmlPullParser parser, String name) throws IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, ns, name);
-        String text = readText(parser);
-        parser.require(XmlPullParser.END_TAG, ns, name);
-        return (text.equals("null")) ? Integer.MIN_VALUE : Integer.parseInt(text);
-    }
-
-    private long readLong(XmlPullParser parser, String name) throws IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, ns, name);
-        String text = readText(parser);
-        parser.require(XmlPullParser.END_TAG, ns, name);
-        return (text.equals("null")) ? Long.MIN_VALUE : Long.parseLong(text);
-    }
-
-    private String readString(XmlPullParser parser, String name) throws IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, ns, name);
-        String text = readText(parser);
-        parser.require(XmlPullParser.END_TAG, ns, name);
-        return text;
-    }
-
-    private String readText(XmlPullParser parser) throws IOException, XmlPullParserException {
         String result = "";
         if (parser.next() == XmlPullParser.TEXT) {
             result = parser.getText();
             parser.nextTag();
         }
+        parser.require(XmlPullParser.END_TAG, ns, name);
         return result;
     }
 

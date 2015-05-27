@@ -29,29 +29,29 @@ public final class SMS {
     private SMS() {}
 
     public static class Data {
-        public final int _id;
-        public final int thread_id;
+        public final String _id;
+        public final String thread_id;
         public final String address;
-        public final int m_size;
-        public final int person;
-        public final long date;
-        public final long date_sent;
-        public final int protocol;
-        public final int read;
-        public final int status;
-        public final int type;
-        public final int reply_path_present;
+        public final String m_size;
+        public final String person;
+        public final String date;
+        public final String date_sent;
+        public final String protocol;
+        public final String read;
+        public final String status;
+        public final String type;
+        public final String reply_path_present;
         public final String subject;
         public final String body;
         public final String service_center;
-        public final int locked;
-        public final int sim_id;
-        public final int error_code;
-        public final int seen;
-        public final int star;
-        public final int pri;
+        public final String locked;
+        public final String sim_id;
+        public final String error_code;
+        public final String seen;
+        public final String star;
+        public final String pri;
 
-        public Data(int id, int thread_id, String address, int m_size, int person, long date, long date_sent, int protocol, int read, int status, int type, int reply_path_present, String subject, String body, String service_center, int locked, int sim_id, int error_code, int seen, int star, int pri) {
+        public Data(String id, String thread_id, String address, String m_size, String person, String date, String date_sent, String protocol, String read, String status, String type, String reply_path_present, String subject, String body, String service_center, String locked, String sim_id, String error_code, String seen, String star, String pri) {
             _id = id;
             this.thread_id = thread_id;
             this.address = address;
