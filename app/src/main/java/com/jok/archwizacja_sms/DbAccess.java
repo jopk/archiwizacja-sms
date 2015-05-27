@@ -96,6 +96,10 @@ public class DbAccess {
         ListIterator<SMS.Data> iterator = list.listIterator();
         while (iterator.hasNext()) {
             SMS.Data tmp = iterator.next();
+            if (tmp == null) {
+                iterator.remove();
+                continue;
+            }
             String[] mProjection = { SMS.ADDRESS, SMS.DATE, SMS.BODY, SMS.TYPE };
             String mSelection = "address=? AND date=? AND body=? AND type=?";
             String[] mSelectionArgs = { tmp.address, tmp.date, tmp.body, tmp.type };
@@ -109,7 +113,7 @@ public class DbAccess {
         intent.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, ctx.getPackageName());
         ctx.startActivity(intent);
 
-        for (SMS.Data tmp : data) {
+        for (SMS.Data tmp : list) {
             ContentValues values = new ContentValues();
             if (!tmp._id.equals("null"))
                 values.put(SMS.ID, tmp._id);

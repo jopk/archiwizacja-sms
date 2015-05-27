@@ -12,6 +12,10 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+
 
 public class MainActivity extends ActionBarActivity {
 
@@ -85,5 +89,27 @@ public class MainActivity extends ActionBarActivity {
                 return super.onOptionsItemSelected(item);
 
         }
+    }
+
+    public void restore(View v) {
+        Compress compress = new Compress();
+        compress.unzip();
+        String[] files = compress.readFiles();
+        SmsXmlParser parser = new SmsXmlParser(this);
+        SMS.Data[] data = new SMS.Data[files.length];
+        for (int i = 0; i < files.length; i++) {
+            try {
+                if (files[i] != null)
+                    data[i] = parser.parse(files[i]);
+                else
+                    data[i] = null;
+            } catch (XmlPullParserException e) {
+                Toast.makeText(this, "XmlPullParserException", Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                Toast.makeText(this, "IOException", Toast.LENGTH_SHORT).show();
+            }
+        }
+        DbAccess dba = new DbAccess(this);
+        dba.restoreSms(data);
     }
 }
