@@ -26,6 +26,20 @@ public class Compress {
 
     public Compress() {}
 
+    private void deleteFiles(){
+        File folder = new File(FILEPATH);
+        if (folder.exists()){
+            if(folder.isDirectory()){
+                String[] files = folder.list();
+                for(int i=0;i<files.length;i++){
+                    if(files[i].endsWith(".xml")){
+                        new File(folder,files[i]).delete();
+                    }
+                }
+            }
+        }
+    }
+
     public String[] writeFiles(String[] data, int ammount) {
         String[] files = new String[data.length];
         File dir = new File(FILEPATH);
@@ -101,7 +115,7 @@ public class Compress {
                     origin.close();
                 }
                 out.close();
-
+                deleteFiles();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
