@@ -95,38 +95,39 @@ public class Compress {
 
         if (!filepath.exists())
             filepath.mkdir();
-        if(compFile.exists()){
-            try {
-                BufferedInputStream origin = null;
-                FileOutputStream dest = new FileOutputStream(ZIPFILE);
-                ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(dest));
+        if(compFile.exists()) {
+            unzip();
+            files = filepath.list();
+        }
+        try {
+            BufferedInputStream origin = null;
+            FileOutputStream dest = new FileOutputStream(ZIPFILE);
+            ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(dest));
 
-                byte data[] = new byte[BUFFER];
-                for(String file : files) {
-                    file = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/" + file;
-                    FileInputStream fi = new FileInputStream(file);
-                    origin = new BufferedInputStream(fi, BUFFER);
-                    ZipEntry entry = new ZipEntry(file.substring(file.lastIndexOf("/") + 1));
-                    out.putNextEntry(entry);
-                    int count;
-                    while ((count = origin.read(data, 0, BUFFER)) != -1) {
-                        out.write(data, 0, count);
-                    }
-                    origin.close();
+            byte data[] = new byte[BUFFER];
+            for(String file : files) {
+                file = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/" + file;
+                FileInputStream fi = new FileInputStream(file);
+                origin = new BufferedInputStream(fi, BUFFER);
+                ZipEntry entry = new ZipEntry(file.substring(file.lastIndexOf("/") + 1));
+                out.putNextEntry(entry);
+                int count;
+                while ((count = origin.read(data, 0, BUFFER)) != -1) {
+                    out.write(data, 0, count);
                 }
-                out.close();
-                deleteFiles();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+                origin.close();
             }
+            out.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        else {
-            appendZip();
-        }
+        deleteFiles();
     }
 
+
+
     public void appendZip(){                //???????????????????
-/*        boolean havePreviousData = false;
+/*      boolean havePreviousData = false;
         Vector<ZipOutputStreamNew.XEntry> tempXentries = new Vector<>();
         long tempWritten = 0;
         int fileIter=0;
