@@ -71,7 +71,7 @@ public class MyService extends Service {
                         String[] smsData = (last_sms_backup != NO_BACKUP) ? dba.getXml(last_sms_backup, dba.SMS_TYPE) : null;
                         if (smsData != null) {
                             test = true;
-                            int sms_ammount = sharedPref.getInt("sms_app_id", 0);
+                            int sms_ammount = sharedPref.getInt("sms_ammount", 0);
                             Compress compress = new Compress();
                             String[] files = compress.writeFiles(smsData, sms_ammount);
                             compress.zip(files);

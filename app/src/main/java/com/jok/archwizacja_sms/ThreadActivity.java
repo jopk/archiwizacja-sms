@@ -160,7 +160,6 @@ public class ThreadActivity extends ActionBarActivity {
 
         // TODO: przerobić SMS.Data dodać warunki i konwersje
         ContentValues values = new ContentValues();
-
         if (!data._id.equals("null"))
             values.put(SMS.ID, data._id);
         if (!data.thread_id.equals("null"))
@@ -203,8 +202,6 @@ public class ThreadActivity extends ActionBarActivity {
             values.put(SMS.STATUS, data.star);
         if (!data.pri.equals("null"))
             values.put(SMS.PRI, data.pri);
-
-
         getContentResolver().insert(DbAccess.SMS_URI, values);
 
         Intent intent2 = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);

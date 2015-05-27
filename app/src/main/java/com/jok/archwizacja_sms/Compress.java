@@ -47,9 +47,10 @@ public class Compress {
             dir.mkdir();
         PrintWriter pw;
         try {
-            for(int i = ammount; i < ammount + data.length; i++) {
+            for(int i = 0; i < data.length; i++) {
                 FILEPATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/";
-                files[i] = "sms"+i+".xml";
+                int tmp = i + ammount;
+                files[i] = "sms" + tmp + ".xml";
                 File file = new File(FILEPATH + files[i]);
                 pw = new PrintWriter(file);
                 pw.write(data[i]);
@@ -115,7 +116,7 @@ public class Compress {
                     origin.close();
                 }
                 out.close();
-                deleteFiles();
+                //deleteFiles();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
