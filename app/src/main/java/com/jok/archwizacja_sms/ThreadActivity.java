@@ -4,13 +4,14 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
-import android.provider.ContactsContract;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -23,7 +24,7 @@ public class ThreadActivity extends ActionBarActivity {
     private DbAccess dba;
     private int[] threadId;
     private String[] threadName;
-
+    public int[] checkedThreads;
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -36,6 +37,13 @@ public class ThreadActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
         dba = new DbAccess(this);
         createThreadList();
+        checkSelected();
+    }
+
+    public int[] checkSelected() {
+        int[] checked = new int[threadId.length];
+
+        return checked;
     }
 
     @Override
@@ -69,8 +77,9 @@ public class ThreadActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
         threadId = dba.getThreadsIds();
         threadName = dba.getContactsNames();
-        MyListAdapter adapter = new MyListAdapter(this, threadName);
+        final MyListAdapter adapter = new MyListAdapter(this, threadName);
         ListView list = (ListView) findViewById(R.id.thread_list);
+        Button button = (Button) findViewById(R.id.button);
         list.setAdapter(adapter);
         list.setSelection(1);
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -80,6 +89,13 @@ public class ThreadActivity extends ActionBarActivity {
                 intent.putExtra("address", threadName[position]);
                 intent.putExtra("thread_id", threadId[position]);
                 startActivity(intent);
+            }
+        });
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                checkedThreads = new int[threadId.length];
+                checkedThreads = adapter.getChecked();
             }
         });
     }
@@ -160,4 +176,7 @@ public class ThreadActivity extends ActionBarActivity {
         sv.addView(tv);
         setContentView(sv);
     }
+
+
+
 }

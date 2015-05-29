@@ -13,4 +13,12 @@
         android:layout_centerHorizontal="true"
         />
 
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Archiwizuj wybrane "
+        android:id="@+id/button"
+        android:layout_alignBottom="@+id/thread_list"
+        android:layout_centerHorizontal="true" />
+
 </RelativeLayout>
