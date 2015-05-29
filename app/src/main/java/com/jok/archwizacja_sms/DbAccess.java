@@ -31,21 +31,28 @@ public class DbAccess {
 
     private Context ctx;
 
-//    private String[] smsData;
-//    private String[] contactData;
-
     public DbAccess(final Context ctx) {
         this.ctx = ctx;
-//        smsData = getXml(0, SMS_TYPE);
-//        contactData = getXml(0, CONTACT_TYPE);
     }
 
-    String[] getXml(long date, int type) {
+    String[] getSmsXml(long date, int thread_id) {
+        Uri uri= SMS_URI;
+        String tag = "sms";
+        String mSelection = "date > ? AND thread_id = ?";
+        String[] mSelectionArgs = { String.valueOf(date), String.valueOf(thread_id) };
+        return getXml(uri, tag, mSelection, mSelectionArgs);
+    }
+
+    String[] getContactXml(String address) {
+        Uri uri= PPL_URI;
+        String tag = "contact";
+        String mSelection = "data4 = ?";
+        String[] mSelectionArgs = { address };
+        return getXml(uri, tag, mSelection, mSelectionArgs);
+    }
+
+    String[] getXml(Uri uri, String tag, String mSelection, String[] mSelectionArgs) {
         String[] data;
-        Uri uri = (type == SMS_TYPE) ? SMS_URI : PPL_URI;
-        String tag = (type == SMS_TYPE) ? "sms" : "contact";
-        String mSelection = (type == SMS_TYPE) ? "date > ?" : "CONTACT_LAST_UPDATED_TIMESTAMP > ?";
-        String[] mSelectionArgs = { String.valueOf(date) };
         Cursor cursor = ctx.getContentResolver().query(uri, null, mSelection, mSelectionArgs, null);
         if (cursor.getCount() > 0) {
             int app_id = 1;
@@ -71,7 +78,7 @@ public class DbAccess {
                             try {
                                 serializer.text(cursor.getString(i));
                             } catch (Exception e) {
-                                serializer.text("BŁĄD: Ten rekord nie może zostać zarchiwizowany.");
+                                serializer.text("BŁĄD: Ten rekord nie może zostać poprawnie zarchiwizowany.");
                             }
                         }
                         serializer.endTag("", cursor.getColumnName(i));
@@ -108,13 +115,6 @@ public class DbAccess {
                 iterator.remove();
             c.close();
         }
-/*
-        String defaultSmsApp = Telephony.Sms.getDefaultSmsPackage(ctx);
-        Intent intent = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
-        intent.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, ctx.getPackageName());
-        ctx.startActivity(intent);
-*/
-
         Cursor c = ctx.getContentResolver().query(SMS_URI, null, null, null, null);
         for (ArrayMap<String, String> map : list) {
             ContentValues values = new ContentValues();
@@ -128,14 +128,8 @@ public class DbAccess {
             ctx.getContentResolver().insert(DbAccess.SMS_URI, values);
         }
         c.close();
-/*
-        Intent intent2 = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
-        intent2.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, defaultSmsApp);
-        ctx.startActivity(intent2);
-*/
         return true;
     }
-
 
     private Cursor getThreads() {
         Cursor c;
@@ -156,12 +150,11 @@ public class DbAccess {
         return ids;
     }
 
-    private Cursor getThreadSmses(int thread) {
+    private Cursor getThreadSmses(int thread_id) {
         Cursor c;
-        String[] mProjection = {"thread_id", "address", "date", "type", "body"};
-        String mSelectionClause = "thread_id=" + String.valueOf(thread);
-//            String mSelectionArgs[] = { "thread_id", String.valueOf(thread) };
-        c = ctx.getContentResolver().query(SMS_URI, mProjection, mSelectionClause, null, null);
+        String mSelection = "thread_id=?";
+        String mSelectionArgs[] = { String.valueOf(thread_id) };
+        c = ctx.getContentResolver().query(SMS_URI, null, mSelection, mSelectionArgs, null);
         return c;
     }
 
@@ -179,10 +172,9 @@ public class DbAccess {
     }
 
     private Cursor getContactsByAddress(String address) {
-        String[] mProjection = { "data4", "display_name" };
+        String[] mProjection = { "display_name" };
         String mSelection = "data4=?";
         String[] mSelectionArgs = { address };
-
         return ctx.getContentResolver().query(PPL_URI, mProjection, mSelection, mSelectionArgs, null);
     }
 
@@ -194,10 +186,6 @@ public class DbAccess {
         {
             int t_id = threadC.getInt(threadC.getColumnIndex("thread_id"));
             Cursor smsC = getThreadSmses(t_id);
-            while (smsC.moveToNext()) {
-                if (smsC.getInt(smsC.getColumnIndex("type")) == Telephony.TextBasedSmsColumns.MESSAGE_TYPE_INBOX) // inbox
-                    break;
-            }
             try {
                 tmp_data[i] = smsC.getString(smsC.getColumnIndex("address"));
             }
@@ -206,7 +194,6 @@ public class DbAccess {
             }
             threadC.moveToNext();
             smsC.close();
-
         }
         threadC.close();
         String[] data = new String[tmp_data.length];
@@ -242,13 +229,4 @@ public class DbAccess {
             return "error";
         }
     }
-/*
-    public String[] getSmsData() {
-        return smsData;
-    }
-
-    public String[] getContactData() {
-        return contactData;
-    }
-*/
 }

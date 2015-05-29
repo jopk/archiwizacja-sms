@@ -43,8 +43,8 @@ public class MainActivity extends ActionBarActivity {
         });
     }
 
-    public void switchCheck(){
-        if(swch.isChecked()){
+    public void switchCheck() {
+        if (swch.isChecked()) {
             Intent intent = new Intent(this, MyService.class);
             startService(intent);
         }
@@ -89,10 +89,16 @@ public class MainActivity extends ActionBarActivity {
 
     public void restore(View v) {
         Intent startIntent = new Intent(this, MyService.class);
+        startIntent.putExtra("restore", true);
         startService(startIntent);
         Intent actionIntent = new Intent();
         actionIntent.putExtra("restore", true);
         actionIntent.setAction(ACTION_FROM_MAIN);
         sendBroadcast(actionIntent);
+    }
+
+    public void archiving(View v) {
+        Intent intent = new Intent(getApplicationContext(), ThreadActivity.class);
+        startActivity(intent);
     }
 }

@@ -16,11 +16,14 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.LinkedList;
+import java.util.TreeSet;
 
 public class MyService extends Service {
 
+    private final long NO_BACKUP = -1;
+    private final long NO_AUTO = 0;
     private final String ACTION_FROM_MAIN = "fromMainActivity";
-    private final String ACTION_TO_MAIN = "toMainActivity";
+    private final String ACTION_FROM_THREADS = "fromThreadsActivity";
 
     BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -29,49 +32,34 @@ public class MyService extends Service {
                 stopSelf();
             if (intent.hasExtra("restore"))
                 restore();
+            if (intent.hasExtra("list")) {
+                int[] t_ids = intent.getIntArrayExtra("list");
+                storeList(t_ids);
+            }
         }
     };
 
     private DbAccess dba;
+    private Thread thread;
 
+    private LinkedList<Integer> threadsList = null;
+
+    private boolean restore = false;
     private long time;
     private long last_sms_backup;
     private long last_contacts_backup;
-    private final long NO_BACKUP = -1;
-    private final long NO_AUTO = 0;
-
-    private Thread thread;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        return START_STICKY;
-    }
+        Toast.makeText(this, "Service.onStartCommand()", Toast.LENGTH_SHORT).show();
 
-    private void restore() {
-        Compress compress = new Compress();
-        compress.unzip();
-        String[] files = compress.readFiles();
-        MyXmlParser parser = new MyXmlParser();
-        LinkedList<ArrayMap<String, String>> list = new LinkedList<>();
-        for (String file : files) {
-            try {
-                if (file != null) {
-                    list.add(parser.parse(file));
-                }
-            } catch (XmlPullParserException e) {
-                Toast.makeText(this, "XmlPullParserException", Toast.LENGTH_SHORT).show();
-            } catch (IOException e) {
-                Toast.makeText(this, "IOException", Toast.LENGTH_SHORT).show();
-            }
-        }
-        DbAccess dba = new DbAccess(this);
-        if (dba.restoreSms(list)) {
-            Toast.makeText(this, "Zrobione.", Toast.LENGTH_SHORT).show();
-        }
+        restore = intent.getBooleanExtra("restore", false);
+        return START_STICKY;
     }
 
     @Override
     public void onCreate() {
+        Toast.makeText(this, "Service.onCreate()", Toast.LENGTH_SHORT).show();
 
         final Context context = getApplicationContext();
         final SharedPreferences sharedPref = context.getSharedPreferences(
@@ -82,11 +70,44 @@ public class MyService extends Service {
 
         if (receiver != null) {
             IntentFilter intentFilter = new IntentFilter(ACTION_FROM_MAIN);
+            intentFilter.addAction(ACTION_FROM_THREADS);
             registerReceiver(receiver, intentFilter);
         }
 
+        thread = createNewThread(sharedPref);
+        if (time != NO_AUTO) {
+            thread.start();
+        }
+    }
 
-        thread = new Thread(new Runnable() {
+    @Override
+    public void onDestroy() {
+        Toast.makeText(this, "Service.onDestroy()", Toast.LENGTH_SHORT).show();
+
+        time = NO_AUTO; // kills thread
+        thread.interrupt();
+
+        Context context = getApplicationContext();
+        SharedPreferences sharedPref = context.getSharedPreferences(
+                getString(R.string.service_settings), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putLong(getString(R.string.last_sms_backup), last_sms_backup);
+        editor.putLong(getString(R.string.last_contacts_backup), NO_BACKUP);
+        editor.apply();
+
+        unregisterReceiver(receiver);
+        super.onDestroy();
+    }
+
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        // TODO: Return the communication channel to the service.
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    private Thread createNewThread(final SharedPreferences sharedPref) {
+        return new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -123,36 +144,51 @@ public class MyService extends Service {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                stopSelf();
+                if (!restore)
+                    stopSelf();
             }
         });
-        thread.start();
     }
 
-    @Override
-    public void onDestroy() {
-        Toast.makeText(this, "Service.onDestroy()", Toast.LENGTH_SHORT).show();
+    private void restore() {
+        Compress compress = new Compress();
+        compress.unzip();
+        String[] files = compress.readFiles();
+        MyXmlParser parser = new MyXmlParser();
+        LinkedList<ArrayMap<String, String>> list = new LinkedList<>();
+        for (String file : files) {
+            try {
+                if (file != null) {
+                    list.add(parser.parse(file));
+                }
+            } catch (XmlPullParserException e) {
+                Toast.makeText(this, "XmlPullParserException", Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                Toast.makeText(this, "IOException", Toast.LENGTH_SHORT).show();
+            }
+        }
+        DbAccess dba = new DbAccess(this);
+        if (dba.restoreSms(list)) {
+            Toast.makeText(this, "Zrobione.", Toast.LENGTH_SHORT).show();
+        }
+        restore = false;
+    }
 
-        time = NO_AUTO; // kills thread
-        thread.interrupt();
-
+    private void storeList(int[] ids) {
+        TreeSet<String> set = new TreeSet<>();
+        threadsList = new LinkedList<>();
+        for (int id : ids) {
+            if (id != -1) {
+                threadsList.add(id);
+                set.add(String.valueOf(id));
+            }
+        }
         Context context = getApplicationContext();
         SharedPreferences sharedPref = context.getSharedPreferences(
                 getString(R.string.service_settings), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putLong(getString(R.string.last_sms_backup), last_sms_backup);
-        editor.putLong(getString(R.string.last_contacts_backup), NO_BACKUP);
+        editor.putStringSet("threads", set);
         editor.apply();
-
-        unregisterReceiver(receiver);
-        super.onDestroy();
-    }
-
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
     }
 
 }

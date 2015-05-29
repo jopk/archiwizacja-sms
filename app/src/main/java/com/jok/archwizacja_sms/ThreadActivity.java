@@ -1,13 +1,11 @@
 package com.jok.archwizacja_sms;
 
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.os.Bundle;
-import android.provider.Telephony;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,14 +14,11 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
 
 
 public class ThreadActivity extends ActionBarActivity {
+
+    private final String ACTION_FROM_THREADS = "fromThreadsActivity";
 
     private DbAccess dba;
     private int[] threadId;
@@ -39,12 +34,6 @@ public class ThreadActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-/*
-        resultReceiver = new MyResultReceiver(null);
-        Intent intent = new Intent(this, MyService.class);
-        intent.putExtra("receiver", resultReceiver);
-        startService(intent);
-*/
         dba = new DbAccess(this);
         createThreadList();
     }
@@ -78,7 +67,6 @@ public class ThreadActivity extends ActionBarActivity {
 
     private void createThreadList() {
         setContentView(R.layout.activity_main);
-
         threadId = dba.getThreadsIds();
         threadName = dba.getContactsNames();
         MyListAdapter adapter = new MyListAdapter(this, threadName);
@@ -117,7 +105,7 @@ public class ThreadActivity extends ActionBarActivity {
                 startActivity(intent);
                 return true;
             case R.id.action_sms:
-                showTableScheme(Uri.parse("content://sms/"));
+                showTableScheme(Uri.parse("content://sms/sent"));
                 return true;
             case R.id.action_thread:
                 showTableScheme(Uri.parse("content://sms/conversations"));
