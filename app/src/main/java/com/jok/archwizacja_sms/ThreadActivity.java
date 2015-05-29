@@ -24,7 +24,7 @@ public class ThreadActivity extends ActionBarActivity {
     private DbAccess dba;
     private int[] threadId;
     private String[] threadName;
-    public int[] checkedThreads;
+    public int[] checkedThreads = null;
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -37,14 +37,8 @@ public class ThreadActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
         dba = new DbAccess(this);
         createThreadList();
-        checkSelected();
     }
 
-    public int[] checkSelected() {
-        int[] checked = new int[threadId.length];
-
-        return checked;
-    }
 
     @Override
     protected void onDestroy() {
@@ -72,9 +66,40 @@ public class ThreadActivity extends ActionBarActivity {
         super.onResume();
     }
 
+    public void saveThreads(View v) {
+        int[] ids = checkedThreads;
+        Intent startIntent = new Intent(this, MyService.class);
+        startIntent.putExtra("save_threads", true);
+        startService(startIntent);
+        try {
+            Thread.sleep(100L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Intent actionIntent = new Intent();
+        actionIntent.putExtra("list", ids);
+        actionIntent.setAction(ACTION_FROM_THREADS);
+        sendBroadcast(actionIntent);
+    }
+
+    public void archiveNow(View v) {
+        saveThreads(null);
+        Intent killIntent = new Intent();
+        killIntent.putExtra("kill", true);
+        killIntent.setAction(ACTION_FROM_THREADS);
+        sendBroadcast(killIntent);
+        try {
+            Thread.sleep(100L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Intent restartIntent = new Intent(this, MyService.class);
+        startService(restartIntent);
+    }
 
     private void createThreadList() {
         setContentView(R.layout.activity_main);
+
         threadId = dba.getThreadsIds();
         threadName = dba.getContactsNames();
         final MyListAdapter adapter = new MyListAdapter(this, threadName);
@@ -95,10 +120,18 @@ public class ThreadActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 checkedThreads = new int[threadId.length];
-                checkedThreads = adapter.getChecked();
+                boolean[] checkedbool;
+                checkedbool = adapter.getChecked();
+                for (int i=0; i<checkedThreads.length; i++) {
+                    if (checkedbool[i])
+                        checkedThreads[i] = threadId[i];
+                    else
+                        checkedThreads[i] = -1;
+                }
             }
         });
     }
+
 
 
     @Override

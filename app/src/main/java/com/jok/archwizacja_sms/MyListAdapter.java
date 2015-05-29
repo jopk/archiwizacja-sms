@@ -13,7 +13,7 @@ public class MyListAdapter extends ArrayAdapter<String> {
 
     private Activity ctx;
     private String[] data;
-    private int[] checked;
+    private boolean[] checked;
 
     public MyListAdapter(final Activity ctx, final String[] data) {
         super(ctx, R.layout.thread_layout, data);
@@ -26,25 +26,25 @@ public class MyListAdapter extends ArrayAdapter<String> {
         View rowView = inflater.inflate(R.layout.thread_layout, null, true);
         TextView address = (TextView) rowView.findViewById(R.id.address);
         CheckBox cb = (CheckBox) rowView.findViewById(R.id.checkBox);
-        checked = new int[data.length];
-        for(int i=0;i<checked.length;i++){
-            checked[i]=1;
+        checked = new boolean[data.length];
+        for (int i=0; i<checked.length; i++) {
+            checked[i] = true;
         }
         cb.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
                 CheckBox checkbox = (CheckBox) v;
                 if (checkbox.isChecked()){
-                    checked[position]=1;
+                    checked[position]=true;
                 }
                 if (!(checkbox.isChecked())){
-                    checked[position]=-1;
+                    checked[position]=false;
                 }
             }
         });
         address.setText(data[position]);
         return rowView;
     }
-    public int[] getChecked(){
+    public boolean[] getChecked(){
         return checked;
     }
 }

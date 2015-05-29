@@ -26,9 +26,6 @@ public class DbAccess {
     public static final Uri THREAD_URI = Uri.parse("content://sms/conversations");
     public static final Uri PPL_URI = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
 
-    public static final int SMS_TYPE = 1;
-    public static final int CONTACT_TYPE = 2;
-
     private Context ctx;
 
     public DbAccess(final Context ctx) {
@@ -171,11 +168,23 @@ public class DbAccess {
         return data;
     }
 
+    String getAddressByThreadId(int id) {
+        Cursor smsC = getThreadSmses(id);
+        String address = null;
+        smsC.moveToNext();
+        try {
+            address = smsC.getString(smsC.getColumnIndex("address"));
+        }
+        catch (Exception e) {
+            address = null;
+        }
+        return address;
+    }
+
     private Cursor getContactsByAddress(String address) {
-        String[] mProjection = { "display_name" };
         String mSelection = "data4=?";
         String[] mSelectionArgs = { address };
-        return ctx.getContentResolver().query(PPL_URI, mProjection, mSelection, mSelectionArgs, null);
+        return ctx.getContentResolver().query(PPL_URI, null, mSelection, mSelectionArgs, null);
     }
 
     String[] getContactsNames() {

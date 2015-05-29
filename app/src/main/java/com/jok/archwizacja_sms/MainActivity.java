@@ -91,6 +91,11 @@ public class MainActivity extends ActionBarActivity {
         Intent startIntent = new Intent(this, MyService.class);
         startIntent.putExtra("restore", true);
         startService(startIntent);
+        try {
+            Thread.sleep(100L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         Intent actionIntent = new Intent();
         actionIntent.putExtra("restore", true);
         actionIntent.setAction(ACTION_FROM_MAIN);
