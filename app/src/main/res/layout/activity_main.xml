@@ -1,34 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity">
+    android:orientation="horizontal"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@android:color/darker_gray">
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Zapisz"
-        android:id="@+id/button"
-        android:nestedScrollingEnabled="true"
-        android:onClick="findChecked"
-        android:layout_above="@+id/button2"
-        android:layout_alignParentStart="true" />
-
-    <Button
-        android:layout_width="match_parent"
+    <Switch
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="Archiwizuj"
-        android:id="@+id/button2"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
-
-    <ListView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/thread_list"
+        android:id="@+id/switch1"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_above="@+id/button" />
+        android:layout_marginTop="42dp"
+        android:checked="false"
+        android:textSize="18dp" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Przywróć"
+        android:id="@+id/restore"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:background="#ccc"
+        android:onClick="onClick"
+        android:textSize="22dp" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Wybierz wątki"
+        android:id="@+id/archive"
+        android:background="#ccc"
+        android:onClick="onClick"
+        android:textSize="22dp"
+        android:layout_above="@+id/restore"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

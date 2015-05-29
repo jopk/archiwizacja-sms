@@ -2,27 +2,24 @@ package com.jok.archwizacja_sms;
 
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ListView;
-import android.widget.ScrollView;
-import android.widget.TextView;
+
 
 
 public class ThreadActivity extends ActionBarActivity {
 
+    private final String ACTION_FROM_THREADS = "fromThreadsActivity";
+
     private DbAccess dba;
     private int[] threadId;
     private String[] threadName;
-    public int[] checkedThreads;
+    public int[] checkedThreads = null;
     MyListAdapter adapter;
 
     @Override
@@ -33,16 +30,11 @@ public class ThreadActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-/*
-        resultReceiver = new MyResultReceiver(null);
-        Intent intent = new Intent(this, MyService.class);
-        intent.putExtra("receiver", resultReceiver);
-        startService(intent);
-*/
+        setContentView(R.layout.activity_thread);
         dba = new DbAccess(this);
         createThreadList();
     }
+
 
     @Override
     protected void onDestroy() {
@@ -70,15 +62,74 @@ public class ThreadActivity extends ActionBarActivity {
         super.onResume();
     }
 
+    public void onClick(View v) {
+        int id = v.getId();
+        switch (id) {
+            case R.id.button_save:
+                findChecked();
+                saveThreads();
+                break;
+            case R.id.button_now:
+                archiveNow();
+                break;
+        }
+    }
+
+    private void saveThreads() {
+        int[] ids = checkedThreads;
+        Intent startIntent = new Intent(this, MyService.class);
+        startIntent.putExtra("save_threads", true);
+        startService(startIntent);
+        try {
+            Thread.sleep(100L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Intent actionIntent = new Intent();
+        actionIntent.putExtra("list", ids);
+        actionIntent.setAction(ACTION_FROM_THREADS);
+        sendBroadcast(actionIntent);
+    }
+
+    private void archiveNow() {
+        saveThreads();
+        Intent killIntent = new Intent();
+        killIntent.putExtra("kill", true);
+        killIntent.setAction(ACTION_FROM_THREADS);
+        sendBroadcast(killIntent);
+        try {
+            Thread.sleep(100L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Intent restartIntent = new Intent(this, MyService.class);
+        startService(restartIntent);
+    }
+
+    private void findChecked() {
+        checkedThreads = new int[threadId.length];
+        boolean[] checkedbool;
+        ListView list = (ListView) findViewById(R.id.thread_list);
+        adapter = (MyListAdapter) list.getAdapter();
+        checkedbool = adapter.getChecked();
+        for (int i = 0; i < checkedThreads.length; i++) {
+            if (checkedbool[i]) {
+                checkedThreads[i] = threadId[i];
+            }
+            else {
+                checkedThreads[i] = -1;
+            }
+        }
+    }
+
 
     private void createThreadList() {
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_thread);
 
         threadId = dba.getThreadsIds();
         threadName = dba.getContactsNames();
         adapter = new MyListAdapter(this, threadName);
         ListView list = (ListView) findViewById(R.id.thread_list);
-        Button button = (Button) findViewById(R.id.button);
         list.setAdapter(adapter);
         list.setSelection(1);
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -90,20 +141,7 @@ public class ThreadActivity extends ActionBarActivity {
                 startActivity(intent);
             }
         });
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                checkedThreads = new int[threadId.length];
-                boolean[] checkedbool;
-                checkedbool = adapter.getChecked();
-                for (int i=0; i<checkedThreads.length;i++){
-                    checkedThreads[i]=-1;
-                    if(checkedbool[i]){
-                        checkedThreads[i]=threadId[i];
-                    }
-                }
-            }
-        });
+
     }
 
     @Override
@@ -125,63 +163,10 @@ public class ThreadActivity extends ActionBarActivity {
                 Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
                 startActivity(intent);
                 return true;
-            case R.id.action_sms:
-                showTableScheme(Uri.parse("content://sms/"));
-                return true;
-            case R.id.action_thread:
-                showTableScheme(Uri.parse("content://sms/conversations"));
-                return true;
-            case R.id.action_mms:
-                showTableScheme(Uri.parse("content://mms/"));
-                return true;
-            case R.id.action_contacts:
-                  showTableScheme(ContactsContract.CommonDataKinds.Phone.CONTENT_URI);
-                return true;
-            case R.id.action_main:
-                createThreadList();
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
-
-    private void showTableScheme(Uri uri) {
-        ScrollView sv = new ScrollView(this);
-        TextView tv = new TextView(this);
-        Cursor c = getContentResolver().query(uri, null, null, null, null);
-        String text = "";
-        if(c.moveToNext()) {
-            for (int i = 0; i < c.getColumnCount(); i++) {
-                text += i + ". " + c.getColumnName(i) + " : ";
-                switch (c.getType(i)) {
-                    case Cursor.FIELD_TYPE_BLOB:
-                        text += "blob";
-                        break;
-                    case Cursor.FIELD_TYPE_FLOAT:
-                        text += "float";
-                        break;
-                    case Cursor.FIELD_TYPE_INTEGER:
-                        text += "integer";
-                        break;
-                    case Cursor.FIELD_TYPE_STRING:
-                        text += "string";
-                        break;
-                    case Cursor.FIELD_TYPE_NULL:
-                        text += "null";
-                        break;
-                }
-                text += " : " + c.getString(i) + "\n";
-            }
-        }
-        else {
-            text += "data is null";
-        }
-        c.close();
-        tv.setText(text);
-        sv.addView(tv);
-        setContentView(sv);
-    }
-
 
 
 }

@@ -26,7 +26,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.frag);
+        setContentView(R.layout.activity_main);
         swch = (Switch) findViewById(R.id.switch1);
         swch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override

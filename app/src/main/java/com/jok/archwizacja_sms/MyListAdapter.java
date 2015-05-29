@@ -16,7 +16,7 @@ public class MyListAdapter extends ArrayAdapter<String> {
     private boolean[] checked;
 
     public MyListAdapter(final Activity ctx, final String[] data) {
-        super(ctx, R.layout.thread_layout, data);
+        super(ctx, R.layout.thread_row, data);
         this.ctx = ctx;
         this.data = data;
     }
@@ -29,7 +29,7 @@ public class MyListAdapter extends ArrayAdapter<String> {
     public View getView(final int position, View view, ViewGroup parent) {
         //ViewHolder holder = null;
         LayoutInflater inflater = ctx.getLayoutInflater();
-        View rowView = inflater.inflate(R.layout.thread_layout, null, true);
+        View rowView = inflater.inflate(R.layout.thread_row, null, true);
         TextView address = (TextView) rowView.findViewById(R.id.address);
         CheckBox cb = (CheckBox) rowView.findViewById(R.id.checkBox);
         checked = new boolean[data.length];
