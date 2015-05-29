@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 
 /**
- * Ta klasa to atrapa, konieczna do uzyskania uprawnień zapisu smsów.
+ * Ta klasa to atrapa, konieczna do uzyskania uprawnień do zapisu smsów.
  */
 public class SmsReceiver extends BroadcastReceiver {
     @Override

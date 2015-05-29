@@ -2,22 +2,29 @@ package com.jok.archwizacja_sms;
 
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.IBinder;
-import android.os.ResultReceiver;
 import android.widget.Toast;
 import java.util.Calendar;
 
 public class MyService extends Service {
 
-    ResultReceiver resultReceiver;
+    private final String ACTION_FROM_MAIN = "fromMainActivity";
+    private final String ACTION_TO_MAIN = "toMainActivity";
+
+    BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.hasExtra("kill"))
+                stopSelf();
+        }
+    };
+
     private DbAccess dba;
-
-
-    private int flags;
-    private int startId;
 
     private long time;
     private long last_sms_backup;
@@ -40,10 +47,6 @@ public class MyService extends Service {
             }
         }).start();
 
-        this.flags = flags;
-        this.startId = startId;
-        this.resultReceiver = intent.getParcelableExtra("receiver");
-
         return START_STICKY;
     }
 
@@ -59,35 +62,40 @@ public class MyService extends Service {
         this.last_contacts_backup = sharedPref.getLong(getString(R.string.last_contacts_backup), NO_BACKUP);
         this.time = sharedPref.getLong(getString(R.string.time_period), NO_AUTO);
 
+        if (receiver != null) {
+            IntentFilter intentFilter = new IntentFilter(ACTION_FROM_MAIN);
+            registerReceiver(receiver, intentFilter);
+        }
+
 
         thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    while (dba == null) {
-                        Thread.sleep(1000L);
+                    if (dba == null) {
+                        dba = new DbAccess(getApplicationContext());
                     }
                     do {
-                        String[] smsData = (last_sms_backup != NO_BACKUP) ? dba.getXml(last_sms_backup, dba.SMS_TYPE) : null;
+                        String[] smsData = (last_sms_backup != NO_BACKUP) ? dba.getXml(last_sms_backup, DbAccess.SMS_TYPE) : null;
                         if (smsData != null) {
                             test = true;
-                            int sms_ammount = sharedPref.getInt("sms_ammount", 0);
+                            int sms_amount = sharedPref.getInt("sms_amount", 0);
                             Compress compress = new Compress();
-                            String[] files = compress.writeFiles(smsData, sms_ammount);
+                            String[] files = compress.writeFiles(smsData, sms_amount);
                             compress.zip(files);
                             SharedPreferences.Editor editor = sharedPref.edit();
-                            editor.putInt("sms_ammount", sms_ammount + files.length);
+                            editor.putInt("sms_amount", sms_amount + files.length);
                             editor.apply();
                             Calendar calendar = Calendar.getInstance();
                             last_sms_backup = calendar.getTimeInMillis();
                         }
                         else
                             test = false;
-                        String[] pplData = (last_contacts_backup != NO_BACKUP) ? dba.getXml(last_contacts_backup, dba.CONTACT_TYPE) : null;
+                        String[] pplData = (last_contacts_backup != NO_BACKUP) ? dba.getXml(last_contacts_backup, DbAccess.CONTACT_TYPE) : null;
                         if (pplData != null) {
-                            int ppl_ammount = 0;
+                            int ppl_amount = 0;
                             Compress compress = new Compress();
-                            String[] files = compress.writeFiles(pplData, ppl_ammount);
+                            String[] files = compress.writeFiles(pplData, ppl_amount);
                             compress.zip(files);
                             Calendar calendar = Calendar.getInstance();
                             last_contacts_backup = calendar.getTimeInMillis();
@@ -105,15 +113,11 @@ public class MyService extends Service {
 
     @Override
     public void onDestroy() {
-        if (test) {
-            Toast.makeText(getApplicationContext(), "true=" + String.valueOf(time), Toast.LENGTH_SHORT).show();
-        }
-        else {
-            Toast.makeText(getApplicationContext(), "false=" + String.valueOf(time), Toast.LENGTH_SHORT).show();
-        }
-//        Toast.makeText(getApplicationContext(), "service is dying", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Service.onDestroy()", Toast.LENGTH_SHORT).show();
+
         time = NO_AUTO; // kills thread
         Thread.interrupted();
+        /*
         while (thread.isAlive()) {
             try {
                 Thread.sleep(100L);
@@ -121,6 +125,7 @@ public class MyService extends Service {
                 e.printStackTrace();
             }
         }
+        */
 
         Context context = getApplicationContext();
         SharedPreferences sharedPref = context.getSharedPreferences(
@@ -129,6 +134,8 @@ public class MyService extends Service {
         editor.putLong(getString(R.string.last_sms_backup), last_sms_backup);
         editor.putLong(getString(R.string.last_contacts_backup), NO_BACKUP);
         editor.apply();
+
+        unregisterReceiver(receiver);
         super.onDestroy();
     }
 

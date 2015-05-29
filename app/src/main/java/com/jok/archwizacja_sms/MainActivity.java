@@ -19,6 +19,9 @@ import java.io.IOException;
 
 public class MainActivity extends ActionBarActivity {
 
+    private final String ACTION_FROM_MAIN = "fromMainActivity";
+    private final String ACTION_TO_MAIN = "toMainActivity";
+
     MyResultReceiver resultReceiver;
     private Switch swch;
 
@@ -55,8 +58,10 @@ public class MainActivity extends ActionBarActivity {
         }
         else {
             Toast.makeText(this, "stop", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(this, MyService.class);
-            stopService(intent);
+            Intent intent = new Intent();
+            intent.putExtra("kill", true);
+            intent.setAction(ACTION_FROM_MAIN);
+            sendBroadcast(intent);
         }
     }
 

@@ -4,6 +4,9 @@ package com.jok.archwizacja_sms;
 import android.provider.Telephony;
 
 public final class SMS {
+    /**
+     * Krótsze nazwy dla większej czytelności kodu.
+     */
     public static final String ID = "_id";
     public static final String THREAD_ID = Telephony.TextBasedSmsColumns.THREAD_ID;
     public static final String ADDRESS = Telephony.TextBasedSmsColumns.ADDRESS;
