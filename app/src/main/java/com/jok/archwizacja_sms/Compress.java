@@ -88,6 +88,7 @@ public class Compress {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        deleteFiles();
         return files;
     }
 
@@ -131,61 +132,6 @@ public class Compress {
         deleteFiles();
     }
 
-
-
-    public void appendZip(){                //???????????????????
-/*      boolean havePreviousData = false;
-        Vector<ZipOutputStreamNew.XEntry> tempXentries = new Vector<>();
-        long tempWritten = 0;
-        int fileIter=0;
-        try{
-            for(String file:files) {
-                //beginning of initial setup stuff
-                BufferedInputStream origin = null;
-                FileOutputStream dest = new FileOutputStream(ZIPFILE,true);
-                ZipOutputStreamNew out = new ZipOutputStreamNew(new BufferedOutputStream(dest));
-                byte data[] = new byte[BUFFER];
-                if (havePreviousData) {
-                    out.setWritten(tempWritten);
-                    out.setXentries(tempXentries);
-                }
-                //end of initial setup stuff
-
-                //beginning of for loop
-                //Log.i("Compress", "Adding: " + files.get(i));
-                FileInputStream fis = new FileInputStream(file);
-                origin = new BufferedInputStream(fis, BUFFER);
-                ZipEntry entry = new ZipEntry(file.substring(file.lastIndexOf("/") + 1));
-                out.putNextEntry(entry);
-                int count;
-                while ((count = origin.read(data, 0, BUFFER)) != -1) {
-                    out.write(data, 0, count);
-                }
-                origin.close();
-                out.closeEntry();
-                //end of for loop
-                fileIter++;
-                //beginning of finishing stuff
-                if (fileIter == (files.length-1)) {
-                    //it's the last record so we should finish it off
-                    out.closeAndFinish();
-                } else {
-                    //close the file, but don't write the Central Directory
-                    //first, back up where the zip file was...
-                    tempWritten = out.getWritten();
-                    tempXentries = out.getXentries();
-                    havePreviousData = true;
-                    //now close the file
-                    out.close();
-                }
-                //end of finishing stuff
-            }
-            //zip succeeded
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        */
-    }
 
     public void unzip(){
         InputStream fis;

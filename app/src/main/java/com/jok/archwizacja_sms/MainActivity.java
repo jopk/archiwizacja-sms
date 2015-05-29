@@ -3,8 +3,8 @@ package com.jok.archwizacja_sms;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
+import android.util.ArrayMap;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,6 +15,7 @@ import android.widget.Toast;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.util.LinkedList;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -22,7 +23,6 @@ public class MainActivity extends ActionBarActivity {
     private final String ACTION_FROM_MAIN = "fromMainActivity";
     private final String ACTION_TO_MAIN = "toMainActivity";
 
-    MyResultReceiver resultReceiver;
     private Switch swch;
 
     @Override
@@ -34,12 +34,6 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.frag);
-        /*Configuration config = getResources().getConfiguration();
-        FragmentManager fragManager = getFragmentManager();
-        FragmentTransaction fragTransaction = fragManager.beginTransaction();
-        SmsBackup smsFrag = new SmsBackup();
-        fragTransaction.replace(android.R.id.content, smsFrag);
-        fragTransaction.commit();*/
         swch = (Switch) findViewById(R.id.switch1);
         swch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -51,13 +45,10 @@ public class MainActivity extends ActionBarActivity {
 
     public void switchCheck(){
         if(swch.isChecked()){
-            resultReceiver = new MyResultReceiver(null);
             Intent intent = new Intent(this, MyService.class);
-            intent.putExtra("receiver", resultReceiver);
             startService(intent);
         }
         else {
-            Toast.makeText(this, "stop", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent();
             intent.putExtra("kill", true);
             intent.setAction(ACTION_FROM_MAIN);
@@ -100,14 +91,14 @@ public class MainActivity extends ActionBarActivity {
         Compress compress = new Compress();
         compress.unzip();
         String[] files = compress.readFiles();
-        SmsXmlParser parser = new SmsXmlParser(this);
-        SMS.Data[] data = new SMS.Data[files.length];
-        for (int i = 0; i < files.length; i++) {
+        MyXmlParser parser = new MyXmlParser();
+        LinkedList<ArrayMap<String, String>> list = new LinkedList<>();
+        ArrayMap[] data = new ArrayMap[files.length];
+        for (String file : files) {
             try {
-                if (files[i] != null)
-                    data[i] = parser.parse(files[i]);
-                else
-                    data[i] = null;
+                if (file != null) {
+                    list.add(parser.parse(file));
+                }
             } catch (XmlPullParserException e) {
                 Toast.makeText(this, "XmlPullParserException", Toast.LENGTH_SHORT).show();
             } catch (IOException e) {
@@ -115,6 +106,8 @@ public class MainActivity extends ActionBarActivity {
             }
         }
         DbAccess dba = new DbAccess(this);
-        dba.restoreSms(data);
+        if (dba.restoreSms(list)) {
+            Toast.makeText(this, "Zrobione.", Toast.LENGTH_SHORT).show();
+        }
     }
 }

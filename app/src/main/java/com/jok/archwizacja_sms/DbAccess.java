@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.provider.Telephony;
+import android.util.ArrayMap;
 import android.util.Xml;
 import org.xmlpull.v1.XmlSerializer;
 import java.io.IOException;
@@ -91,79 +92,50 @@ public class DbAccess {
         return data;
     }
 
-    public void restoreSms(SMS.Data[] data) {
-        LinkedList<SMS.Data> list = new LinkedList<SMS.Data>(Arrays.asList(data));
-        ListIterator<SMS.Data> iterator = list.listIterator();
+    public boolean restoreSms(LinkedList<ArrayMap<String, String>> list) {
+        ListIterator<ArrayMap<String, String>> iterator = list.listIterator();
         while (iterator.hasNext()) {
-            SMS.Data tmp = iterator.next();
+            ArrayMap<String, String> tmp = iterator.next();
             if (tmp == null) {
                 iterator.remove();
                 continue;
             }
-            String[] mProjection = { SMS.ADDRESS, SMS.DATE, SMS.BODY, SMS.TYPE };
+            String[] mProjection = { Telephony.Sms.ADDRESS, Telephony.Sms.DATE, Telephony.Sms.BODY, Telephony.Sms.TYPE };
             String mSelection = "address=? AND date=? AND body=? AND type=?";
-            String[] mSelectionArgs = { tmp.address, tmp.date, tmp.body, tmp.type };
+            String[] mSelectionArgs = { tmp.get(Telephony.Sms.ADDRESS), tmp.get(Telephony.Sms.DATE), tmp.get(Telephony.Sms.BODY), tmp.get(Telephony.Sms.TYPE) };
             Cursor c = ctx.getContentResolver().query(SMS_URI, mProjection, mSelection, mSelectionArgs, null);
             if (c.getCount() > 0)
                 iterator.remove();
             c.close();
         }
+/*
         String defaultSmsApp = Telephony.Sms.getDefaultSmsPackage(ctx);
         Intent intent = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
         intent.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, ctx.getPackageName());
         ctx.startActivity(intent);
+*/
 
-        for (SMS.Data tmp : list) {
+        Cursor c = ctx.getContentResolver().query(SMS_URI, null, null, null, null);
+        for (ArrayMap<String, String> map : list) {
             ContentValues values = new ContentValues();
-            if (!tmp._id.equals("null"))
-                values.put(SMS.ID, tmp._id);
-            if (!tmp.thread_id.equals("null"))
-                values.put(SMS.THREAD_ID, tmp.thread_id);
-            if (!tmp.address.equals("null"))
-                values.put(SMS.ADDRESS, tmp.address);
-            if (!tmp.m_size.equals("null"))
-                values.put(SMS.M_SIZE, tmp.m_size);
-            if (!tmp.person.equals("null"))
-                values.put(SMS.PERSON, tmp.person);
-            if (!tmp.date.equals("null"))
-                values.put(SMS.DATE, tmp.date);
-            if (!tmp.date_sent.equals("null"))
-                values.put(SMS.DATE_SENT, tmp.date_sent);
-            if (!tmp.protocol.equals("null"))
-                values.put(SMS.PROTOCOL, tmp.protocol);
-            if (!tmp.read.equals("null"))
-                values.put(SMS.READ, tmp.read);
-            if (!tmp.status.equals("null"))
-                values.put(SMS.STATUS, tmp.status);
-            if (!tmp.type.equals("null"))
-                values.put(SMS.TYPE, tmp.type);
-            if (!tmp.reply_path_present.equals("null"))
-                values.put(SMS.REPLY_PATH_PRESENT, tmp.reply_path_present);
-            if (!tmp.subject.equals("null"))
-                values.put(SMS.SUBJECT, tmp.subject);
-            if (!tmp.body.equals("null"))
-                values.put(SMS.BODY, tmp.body);
-            if (!tmp.service_center.equals("null"))
-                values.put(SMS.SERVICE_CENTER, tmp.service_center);
-            if (!tmp.locked.equals("null"))
-                values.put(SMS.LOCKED, tmp.locked);
-            if (!tmp.sim_id.equals("null"))
-                values.put(SMS.SIM_ID, tmp.sim_id);
-            if (!tmp.error_code.equals("null"))
-                values.put(SMS.ERROR_CODE, tmp.error_code);
-            if (!tmp.seen.equals("null"))
-                values.put(SMS.SEEN, tmp.seen);
-            if (!tmp.star.equals("null"))
-                values.put(SMS.STATUS, tmp.star);
-            if (!tmp.pri.equals("null"))
-                values.put(SMS.PRI, tmp.pri);
+            for (int i = 0; i < c.getColumnCount(); i++) {
+                String name = c.getColumnName(i);
+                String val = map.get(name);
+                if (!val.equals("null")) {
+                    values.put(name, val);
+                }
+            }
             ctx.getContentResolver().insert(DbAccess.SMS_URI, values);
-
         }
+        c.close();
+/*
         Intent intent2 = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
         intent2.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, defaultSmsApp);
         ctx.startActivity(intent2);
+*/
+        return true;
     }
+
 
     private Cursor getThreads() {
         Cursor c;

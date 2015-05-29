@@ -29,7 +29,6 @@ public class ThreadActivity extends ActionBarActivity {
     private int[] threadId;
     private String[] threadName;
 
-    MyResultReceiver resultReceiver;
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
