@@ -8,8 +8,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.IBinder;
+import android.util.ArrayMap;
 import android.widget.Toast;
+
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 import java.util.Calendar;
+import java.util.LinkedList;
 
 public class MyService extends Service {
 
@@ -21,6 +27,8 @@ public class MyService extends Service {
         public void onReceive(Context context, Intent intent) {
             if (intent.hasExtra("kill"))
                 stopSelf();
+            if (intent.hasExtra("restore"))
+                restore();
         }
     };
 
@@ -32,28 +40,38 @@ public class MyService extends Service {
     private final long NO_BACKUP = -1;
     private final long NO_AUTO = 0;
 
-    private boolean test = false;
-
     private Thread thread;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Toast.makeText(getApplicationContext(), "service is running", Toast.LENGTH_SHORT).show();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                dba = new DbAccess(getApplicationContext());
-            }
-        }).start();
-
         return START_STICKY;
     }
 
-
+    private void restore() {
+        Compress compress = new Compress();
+        compress.unzip();
+        String[] files = compress.readFiles();
+        MyXmlParser parser = new MyXmlParser();
+        LinkedList<ArrayMap<String, String>> list = new LinkedList<>();
+        for (String file : files) {
+            try {
+                if (file != null) {
+                    list.add(parser.parse(file));
+                }
+            } catch (XmlPullParserException e) {
+                Toast.makeText(this, "XmlPullParserException", Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                Toast.makeText(this, "IOException", Toast.LENGTH_SHORT).show();
+            }
+        }
+        DbAccess dba = new DbAccess(this);
+        if (dba.restoreSms(list)) {
+            Toast.makeText(this, "Zrobione.", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     @Override
-    public  void onCreate() {
+    public void onCreate() {
 
         final Context context = getApplicationContext();
         final SharedPreferences sharedPref = context.getSharedPreferences(
@@ -78,7 +96,6 @@ public class MyService extends Service {
                     do {
                         String[] smsData = (last_sms_backup != NO_BACKUP) ? dba.getXml(last_sms_backup, DbAccess.SMS_TYPE) : null;
                         if (smsData != null) {
-                            test = true;
                             int sms_amount = sharedPref.getInt("sms_amount", 0);
                             Compress compress = new Compress();
                             String[] files = compress.writeFiles(smsData, sms_amount);
@@ -89,21 +106,22 @@ public class MyService extends Service {
                             Calendar calendar = Calendar.getInstance();
                             last_sms_backup = calendar.getTimeInMillis();
                         }
-                        else
-                            test = false;
                         String[] pplData = (last_contacts_backup != NO_BACKUP) ? dba.getXml(last_contacts_backup, DbAccess.CONTACT_TYPE) : null;
                         if (pplData != null) {
-                            int ppl_amount = 0;
+                            int ppl_amount = sharedPref.getInt("ppl_amount", 0);;
                             Compress compress = new Compress();
                             String[] files = compress.writeFiles(pplData, ppl_amount);
                             compress.zip(files);
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.putInt("ppl_amount", ppl_amount + files.length);
+                            editor.apply();
                             Calendar calendar = Calendar.getInstance();
                             last_contacts_backup = calendar.getTimeInMillis();
                         }
                         Thread.sleep(time);
                     } while (time != NO_AUTO);
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
                 stopSelf();
             }
@@ -116,16 +134,7 @@ public class MyService extends Service {
         Toast.makeText(this, "Service.onDestroy()", Toast.LENGTH_SHORT).show();
 
         time = NO_AUTO; // kills thread
-        Thread.interrupted();
-        /*
-        while (thread.isAlive()) {
-            try {
-                Thread.sleep(100L);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        */
+        thread.interrupt();
 
         Context context = getApplicationContext();
         SharedPreferences sharedPref = context.getSharedPreferences(

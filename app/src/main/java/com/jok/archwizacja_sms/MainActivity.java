@@ -88,26 +88,11 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void restore(View v) {
-        Compress compress = new Compress();
-        compress.unzip();
-        String[] files = compress.readFiles();
-        MyXmlParser parser = new MyXmlParser();
-        LinkedList<ArrayMap<String, String>> list = new LinkedList<>();
-        ArrayMap[] data = new ArrayMap[files.length];
-        for (String file : files) {
-            try {
-                if (file != null) {
-                    list.add(parser.parse(file));
-                }
-            } catch (XmlPullParserException e) {
-                Toast.makeText(this, "XmlPullParserException", Toast.LENGTH_SHORT).show();
-            } catch (IOException e) {
-                Toast.makeText(this, "IOException", Toast.LENGTH_SHORT).show();
-            }
-        }
-        DbAccess dba = new DbAccess(this);
-        if (dba.restoreSms(list)) {
-            Toast.makeText(this, "Zrobione.", Toast.LENGTH_SHORT).show();
-        }
+        Intent startIntent = new Intent(this, MyService.class);
+        startService(startIntent);
+        Intent actionIntent = new Intent();
+        actionIntent.putExtra("restore", true);
+        actionIntent.setAction(ACTION_FROM_MAIN);
+        sendBroadcast(actionIntent);
     }
 }
