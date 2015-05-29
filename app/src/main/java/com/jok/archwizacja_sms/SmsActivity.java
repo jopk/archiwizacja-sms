@@ -33,7 +33,7 @@ public class SmsActivity extends Activity {
         t_id = extras.getInt("thread_id");
 
         String[] data = dba.getSmsesBody(t_id);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.sms_row, data);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, data);
         ListView listView = (ListView) findViewById(R.id.sms_list);
         listView.setAdapter(adapter);
         listView.setSelection(1);
