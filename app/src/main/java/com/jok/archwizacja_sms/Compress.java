@@ -44,14 +44,17 @@ public class Compress {
     }
 
     public String[] writeFiles(String[] data, int amount, Context ctx) {
+        File dir = ctx.getFilesDir();
         String[] files = new String[data.length];
         for (int i = 0; i < data.length; i++) {
             try {
                 int tmp = i + amount;
                 files[i] = "sms" + tmp + ".xml";
-                FileOutputStream fos = ctx.openFileOutput(files[i], Context.MODE_PRIVATE);
-                fos.write(data[i].getBytes());
-                fos.close();
+                File file = new File(dir, files[i]);
+                PrintWriter pw = new PrintWriter(file);
+                pw.write(data[i]);
+                pw.flush();
+                pw.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
