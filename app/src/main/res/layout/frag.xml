@@ -20,22 +20,22 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Przywróć"
-        android:id="@+id/button"
+        android:id="@+id/restore"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:background="#ccc"
-        android:onClick="restore"
+        android:onClick="onClick"
         android:textSize="22dp" />
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Archwizuj teraz"
-        android:id="@+id/button2"
+        android:text="Wybierz wątki"
+        android:id="@+id/archive"
         android:background="#ccc"
-        android:onClick="archiving"
+        android:onClick="onClick"
         android:textSize="22dp"
-        android:layout_above="@+id/button"
+        android:layout_above="@+id/restore"
         android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

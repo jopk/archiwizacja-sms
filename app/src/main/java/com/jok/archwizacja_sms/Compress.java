@@ -1,5 +1,6 @@
 package com.jok.archwizacja_sms;
 
+import android.content.Context;
 import android.os.Environment;
 
 import java.io.BufferedInputStream;
@@ -7,6 +8,7 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -41,7 +43,25 @@ public class Compress {
         }
     }
 
-    public String[] writeFiles(String[] data, int ammount) {
+    public String[] writeFiles(String[] data, int amount, Context ctx) {
+        String[] files = new String[data.length];
+        for (int i = 0; i < data.length; i++) {
+            try {
+                int tmp = i + amount;
+                files[i] = "sms" + tmp + ".xml";
+                FileOutputStream fos = ctx.openFileOutput(files[i], Context.MODE_PRIVATE);
+                fos.write(data[i].getBytes());
+                fos.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return files;
+    }
+
+
+
+    public String[] writeFilesExternal(String[] data, int amount) {
         String[] files = new String[data.length];
         File dir = new File(FILEPATH);
         if (!dir.exists())
@@ -50,7 +70,7 @@ public class Compress {
         try {
             for(int i = 0; i < data.length; i++) {
                 FILEPATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/";
-                int tmp = i + ammount;
+                int tmp = i + amount;
                 files[i] = "sms" + tmp + ".xml";
                 File file = new File(FILEPATH + files[i]);
                 pw = new PrintWriter(file);
@@ -64,7 +84,33 @@ public class Compress {
         return files;
     }
 
-    public String[] readFiles() {
+    public String[] readFiles(Context ctx) {
+        File path = ctx.getFilesDir();
+        File fileslist[] = path.listFiles();
+        String[] files = new String[fileslist.length];
+
+        for (int i = 0; i < fileslist.length; i++) {
+            try {
+                String name = fileslist[i].getName();
+                if (name.endsWith(".xml")) {
+                    FileInputStream fis = ctx.openFileInput(fileslist[i].getName());
+                    InputStreamReader isr = new InputStreamReader(fis);
+                    BufferedReader bufferedReader = new BufferedReader(isr);
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while((line = bufferedReader.readLine())!=null){
+                        sb.append(line);
+                    }
+                    files[i] = sb.toString();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return files;
+    }
+
+    public String[] readFilesExternal() {
         File fileslist[] = new File(FILEPATH).listFiles();
         String[] files = new String[fileslist.length];
 

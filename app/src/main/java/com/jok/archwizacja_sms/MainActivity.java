@@ -4,18 +4,11 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.ArrayMap;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
-import android.widget.Toast;
-
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
-import java.util.LinkedList;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -77,17 +70,24 @@ public class MainActivity extends ActionBarActivity {
                 intent = new Intent(getApplicationContext(), SettingsActivity.class);
                 startActivity(intent);
                 return true;
-            case R.id.SmsList:
-                intent = new Intent(getApplicationContext(), ThreadActivity.class);
-                startActivity(intent);
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
 
         }
     }
 
-    public void restore(View v) {
+    public void onClick(View v) {
+        int id = v.getId();
+        switch (id) {
+            case R.id.restore:
+                restore();
+                break;
+            case R.id.archive:
+                archive();
+                break;
+        }
+    }
+    private void restore() {
         Intent startIntent = new Intent(this, MyService.class);
         startIntent.putExtra("restore", true);
         startService(startIntent);
@@ -102,7 +102,7 @@ public class MainActivity extends ActionBarActivity {
         sendBroadcast(actionIntent);
     }
 
-    public void archiving(View v) {
+    private void archive() {
         Intent intent = new Intent(getApplicationContext(), ThreadActivity.class);
         startActivity(intent);
     }

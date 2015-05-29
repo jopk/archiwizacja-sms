@@ -42,7 +42,7 @@ public class MyService extends Service {
     private DbAccess dba;
     private Thread thread;
 
-    private LinkedList<Integer> threadsList = null;
+    private TreeSet<String> threadsIds = null;
 
     private boolean restore = false;
     private boolean saveThreads = false;
@@ -72,6 +72,7 @@ public class MyService extends Service {
                 getString(R.string.service_settings), Context.MODE_PRIVATE);
         this.last_sms_backup = sharedPref.getLong(getString(R.string.last_sms_backup), 1);
         this.time = sharedPref.getLong(getString(R.string.time_period), NO_AUTO);
+        this.threadsIds = (TreeSet<String>) sharedPref.getStringSet("threads", null);
 
         if (receiver != null) {
             IntentFilter intentFilter = new IntentFilter(ACTION_FROM_MAIN);
@@ -117,12 +118,13 @@ public class MyService extends Service {
                         dba = new DbAccess(getApplicationContext());
                     }
                     do {
-                        for (int id : threadsList) {
+                        for (String sId : threadsIds) {
+                            int id = Integer.parseInt(sId);
                             String[] smsData = (last_sms_backup != NO_BACKUP) ? dba.getSmsXml(last_sms_backup, id) : null;
                             if (smsData != null) {
                                 int sms_amount = sharedPref.getInt("sms_amount", 0);
                                 Compress compress = new Compress();
-                                String[] files = compress.writeFiles(smsData, sms_amount);
+                                String[] files = compress.writeFilesExternal(smsData, sms_amount);
                                 compress.zip(files);
                                 SharedPreferences.Editor editor = sharedPref.edit();
                                 editor.putInt("sms_amount", sms_amount + files.length);
@@ -133,9 +135,10 @@ public class MyService extends Service {
                             String address = dba.getAddressByThreadId(id);
                             String[] pplData = dba.getContactXml(address);
                             if (pplData != null) {
-                                int ppl_amount = sharedPref.getInt("ppl_amount", 0);;
+                                int ppl_amount = sharedPref.getInt("ppl_amount", 0);
+                                ;
                                 Compress compress = new Compress();
-                                String[] files = compress.writeFiles(pplData, ppl_amount);
+                                String[] files = compress.writeFilesExternal(pplData, ppl_amount);
                                 compress.zip(files);
                                 SharedPreferences.Editor editor = sharedPref.edit();
                                 editor.putInt("ppl_amount", ppl_amount + files.length);
@@ -158,7 +161,7 @@ public class MyService extends Service {
     private void restore() {
         Compress compress = new Compress();
         compress.unzip();
-        String[] files = compress.readFiles();
+        String[] files = compress.readFilesExternal();
         MyXmlParser parser = new MyXmlParser();
         LinkedList<ArrayMap<String, String>> list = new LinkedList<>();
         for (String file : files) {
@@ -181,13 +184,12 @@ public class MyService extends Service {
 
     private void storeList(int[] ids) {
         TreeSet<String> set = new TreeSet<>();
-        threadsList = new LinkedList<>();
         for (int id : ids) {
             if (id != -1) {
-                threadsList.add(id);
                 set.add(String.valueOf(id));
             }
         }
+        threadsIds = set;
         Context context = getApplicationContext();
         SharedPreferences sharedPref = context.getSharedPreferences(
                 getString(R.string.service_settings), Context.MODE_PRIVATE);

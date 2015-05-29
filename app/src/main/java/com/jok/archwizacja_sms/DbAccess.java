@@ -182,9 +182,10 @@ public class DbAccess {
     }
 
     private Cursor getContactsByAddress(String address) {
+        String[] mProjection = { "display_name" };
         String mSelection = "data4=?";
         String[] mSelectionArgs = { address };
-        return ctx.getContentResolver().query(PPL_URI, null, mSelection, mSelectionArgs, null);
+        return ctx.getContentResolver().query(PPL_URI, mProjection, mSelection, mSelectionArgs, null);
     }
 
     String[] getContactsNames() {

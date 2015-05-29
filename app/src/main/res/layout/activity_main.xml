@@ -17,7 +17,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="Archiwizuj wybrane "
-        android:id="@+id/button"
+        android:id="@+id/restore"
         android:layout_alignBottom="@+id/thread_list"
         android:layout_centerHorizontal="true" />
 
