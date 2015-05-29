@@ -128,6 +128,20 @@ public class DbAccess {
         return true;
     }
 
+    String getAddressByThreadId(int id) {
+        Cursor smsC = getThreadSmses(id);
+        String address = null;
+        smsC.moveToNext();
+        try {
+            address = smsC.getString(smsC.getColumnIndex("address"));
+        }
+        catch (Exception e) {
+            address = null;
+        }
+        smsC.close();
+        return address;
+    }
+
     private Cursor getThreads() {
         Cursor c;
         String[] mProjection = { "thread_id" };
@@ -147,11 +161,11 @@ public class DbAccess {
         return ids;
     }
 
-    private Cursor getThreadSmses(int thread_id) {
+    private Cursor getThreadSmses(int thread) {
         Cursor c;
-        String mSelection = "thread_id=?";
-        String mSelectionArgs[] = { String.valueOf(thread_id) };
-        c = ctx.getContentResolver().query(SMS_URI, null, mSelection, mSelectionArgs, null);
+        String[] mProjection = {"thread_id", "address", "date", "type", "body"};
+        String mSelectionClause = "thread_id=" + String.valueOf(thread);
+        c = ctx.getContentResolver().query(SMS_URI, mProjection, mSelectionClause, null, null);
         return c;
     }
 
@@ -168,21 +182,8 @@ public class DbAccess {
         return data;
     }
 
-    String getAddressByThreadId(int id) {
-        Cursor smsC = getThreadSmses(id);
-        String address = null;
-        smsC.moveToNext();
-        try {
-            address = smsC.getString(smsC.getColumnIndex("address"));
-        }
-        catch (Exception e) {
-            address = null;
-        }
-        return address;
-    }
-
     private Cursor getContactsByAddress(String address) {
-        String[] mProjection = { "display_name" };
+        String[] mProjection = { "data4", "display_name" };
         String mSelection = "data4=?";
         String[] mSelectionArgs = { address };
         return ctx.getContentResolver().query(PPL_URI, mProjection, mSelection, mSelectionArgs, null);
@@ -196,6 +197,10 @@ public class DbAccess {
         {
             int t_id = threadC.getInt(threadC.getColumnIndex("thread_id"));
             Cursor smsC = getThreadSmses(t_id);
+            while (smsC.moveToNext()) {
+                if (smsC.getInt(smsC.getColumnIndex("type")) == Telephony.TextBasedSmsColumns.MESSAGE_TYPE_INBOX) // inbox
+                    break;
+            }
             try {
                 tmp_data[i] = smsC.getString(smsC.getColumnIndex("address"));
             }
@@ -204,6 +209,7 @@ public class DbAccess {
             }
             threadC.moveToNext();
             smsC.close();
+
         }
         threadC.close();
         String[] data = new String[tmp_data.length];

@@ -19,24 +19,32 @@ public class MyListAdapter extends ArrayAdapter<String> {
         super(ctx, R.layout.thread_row, data);
         this.ctx = ctx;
         this.data = data;
-    }
-
-    private class ViewHolder {
-        TextView code;
-        CheckBox name;
-    }
-
-    public View getView(final int position, View view, ViewGroup parent) {
-        //ViewHolder holder = null;
-        LayoutInflater inflater = ctx.getLayoutInflater();
-        View rowView = inflater.inflate(R.layout.thread_row, null, true);
-        TextView address = (TextView) rowView.findViewById(R.id.address);
-        CheckBox cb = (CheckBox) rowView.findViewById(R.id.checkBox);
         checked = new boolean[data.length];
-        for(int i=0;i<data.length;i++){
-            checked[i]=true;
+        for (boolean x : checked) {
+            x = true;
         }
-        cb.setOnClickListener(new View.OnClickListener(){
+    }
+
+    private static class ViewHolder {
+        TextView textView;
+        CheckBox checkBox;
+    }
+
+    public View getView(final int position, View rowView, ViewGroup parent) {
+        ViewHolder viewHolder;
+        if (rowView == null) {
+            LayoutInflater inflater = ctx.getLayoutInflater();
+            rowView = inflater.inflate(R.layout.thread_row, null, true);
+            viewHolder = new ViewHolder();
+            viewHolder.textView = (TextView) rowView.findViewById(R.id.address);
+            viewHolder.checkBox = (CheckBox) rowView.findViewById(R.id.checkBox);
+            rowView.setTag(viewHolder);
+        }
+        else {
+            viewHolder = (ViewHolder) rowView.getTag();
+        }
+        viewHolder.checkBox.setChecked(checked[position]);
+        viewHolder.checkBox.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
                 CheckBox checkbox = (CheckBox) v;
                 if (checkbox.isChecked()){
@@ -47,7 +55,7 @@ public class MyListAdapter extends ArrayAdapter<String> {
                 }
             }
         });
-        address.setText(data[position]);
+        viewHolder.textView.setText(data[position]);
         return rowView;
     }
     public boolean[] getChecked(){

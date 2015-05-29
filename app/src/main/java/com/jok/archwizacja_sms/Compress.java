@@ -64,7 +64,7 @@ public class Compress {
 
 
 
-    public String[] writeFilesExternal(String[] data, int amount) {
+    public String[] writeFilesExternal(String[] data, int amount, String tag) {
         String[] files = new String[data.length];
         File dir = new File(FILEPATH);
         if (!dir.exists())
@@ -74,7 +74,7 @@ public class Compress {
             for(int i = 0; i < data.length; i++) {
                 FILEPATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/";
                 int tmp = i + amount;
-                files[i] = "sms" + tmp + ".xml";
+                files[i] = tag + tmp + ".xml";
                 File file = new File(FILEPATH + files[i]);
                 pw = new PrintWriter(file);
                 pw.write(data[i]);
@@ -137,7 +137,7 @@ public class Compress {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        deleteFiles();
+        //deleteFiles();
         return files;
     }
 
@@ -147,6 +147,7 @@ public class Compress {
 
         if (!filepath.exists())
             filepath.mkdir();
+
         if(compFile.exists()) {
             unzip();
             files = filepath.list(new FilenameFilter() {
@@ -178,7 +179,7 @@ public class Compress {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        deleteFiles();
+        //deleteFiles();
     }
 
 

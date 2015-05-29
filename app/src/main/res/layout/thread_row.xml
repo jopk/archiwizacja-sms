@@ -15,7 +15,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/checkBox"
-        android:checked="true"
+        android:checked="false"
         android:layout_gravity="center_horizontal"
         android:layout_alignParentTop="false"
         android:layout_alignParentRight="true"

@@ -15,6 +15,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.TreeSet;
 
@@ -42,7 +43,7 @@ public class MyService extends Service {
     private DbAccess dba;
     private Thread thread;
 
-    private TreeSet<String> threadsIds = null;
+    private HashSet<String> threadsIds = null;
 
     private boolean restore = false;
     private boolean saveThreads = false;
@@ -58,8 +59,8 @@ public class MyService extends Service {
         saveThreads = intent.getBooleanExtra("save_threads", false);
         if (intent.hasExtra("once")) {
             time = NO_AUTO;
-            thread.start();
         }
+
         return START_STICKY;
     }
 
@@ -72,7 +73,7 @@ public class MyService extends Service {
                 getString(R.string.service_settings), Context.MODE_PRIVATE);
         this.last_sms_backup = sharedPref.getLong(getString(R.string.last_sms_backup), 1);
         this.time = sharedPref.getLong(getString(R.string.time_period), NO_AUTO);
-        this.threadsIds = (TreeSet<String>) sharedPref.getStringSet("threads", null);
+        this.threadsIds = (HashSet<String>) sharedPref.getStringSet("threads", null);
 
         if (receiver != null) {
             IntentFilter intentFilter = new IntentFilter(ACTION_FROM_MAIN);
@@ -81,6 +82,9 @@ public class MyService extends Service {
         }
 
         thread = createNewThread(sharedPref);
+        if (threadsIds != null && !threadsIds.isEmpty()) {
+            thread.start();
+        }
 
     }
 
@@ -124,7 +128,7 @@ public class MyService extends Service {
                             if (smsData != null) {
                                 int sms_amount = sharedPref.getInt("sms_amount", 0);
                                 Compress compress = new Compress();
-                                String[] files = compress.writeFilesExternal(smsData, sms_amount);
+                                String[] files = compress.writeFilesExternal(smsData, sms_amount, "sms");
                                 compress.zip(files);
                                 SharedPreferences.Editor editor = sharedPref.edit();
                                 editor.putInt("sms_amount", sms_amount + files.length);
@@ -133,19 +137,20 @@ public class MyService extends Service {
                                 last_sms_backup = calendar.getTimeInMillis();
                             }
                             String address = dba.getAddressByThreadId(id);
-                            String[] pplData = dba.getContactXml(address);
-                            if (pplData != null) {
-                                int ppl_amount = sharedPref.getInt("ppl_amount", 0);
-                                ;
-                                Compress compress = new Compress();
-                                String[] files = compress.writeFilesExternal(pplData, ppl_amount);
-                                compress.zip(files);
-                                SharedPreferences.Editor editor = sharedPref.edit();
-                                editor.putInt("ppl_amount", ppl_amount + files.length);
-                                editor.apply();
+                            String[] pplData = null;
+                            if (address != null) {
+                                pplData = dba.getContactXml(address);
+                                if (pplData != null) {
+                                    int ppl_amount = sharedPref.getInt("ppl_amount", 0);
+                                    Compress compress = new Compress();
+                                    String[] files = compress.writeFilesExternal(pplData, ppl_amount, "contact");
+                                    compress.zip(files);
+                                    SharedPreferences.Editor editor = sharedPref.edit();
+                                    editor.putInt("ppl_amount", ppl_amount + files.length);
+                                    editor.apply();
+                                }
                             }
                         }
-
                         Thread.sleep(time);
                     } while (time != NO_AUTO);
                 } catch (InterruptedException e) {
@@ -166,7 +171,7 @@ public class MyService extends Service {
         LinkedList<ArrayMap<String, String>> list = new LinkedList<>();
         for (String file : files) {
             try {
-                if (file != null) {
+                if (file != null && file.contains("sms")) {
                     list.add(parser.parse(file));
                 }
             } catch (XmlPullParserException e) {
@@ -177,13 +182,13 @@ public class MyService extends Service {
         }
         DbAccess dba = new DbAccess(this);
         if (dba.restoreSms(list)) {
-            Toast.makeText(this, "Zrobione.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Zrobione: " + list.size() + " <- " + files.length, Toast.LENGTH_SHORT).show();
         }
         restore = false;
     }
 
     private void storeList(int[] ids) {
-        TreeSet<String> set = new TreeSet<>();
+        HashSet<String> set = new HashSet<>();
         for (int id : ids) {
             if (id != -1) {
                 set.add(String.valueOf(id));
