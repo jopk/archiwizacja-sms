@@ -8,7 +8,6 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -43,18 +42,21 @@ public class Compress {
         }
     }
 
-    public String[] writeFiles(String[] data, int amount, Context ctx) {
-        File dir = ctx.getFilesDir();
+    public String[] writeFiles(String[] data, int amount, String tag, Context ctx) {
+        //File dir = ctx.getFilesDir();
         String[] files = new String[data.length];
         for (int i = 0; i < data.length; i++) {
             try {
                 int tmp = i + amount;
-                files[i] = "sms" + tmp + ".xml";
-                File file = new File(dir, files[i]);
+                files[i] = tag + tmp + ".xml";
+                FileOutputStream fos = ctx.openFileOutput(files[i],Context.MODE_PRIVATE);
+                fos.write(data[i].getBytes());
+                fos.close();
+                /*File file = new File(dir, files[i]);
                 PrintWriter pw = new PrintWriter(file);
                 pw.write(data[i]);
                 pw.flush();
-                pw.close();
+                pw.close();*/
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -88,15 +90,27 @@ public class Compress {
     }
 
     public String[] readFiles(Context ctx) {
-        File path = ctx.getFilesDir();
+       /* File path = ctx.getFilesDir();
         File fileslist[] = path.listFiles();
-        String[] files = new String[fileslist.length];
-
-        for (int i = 0; i < fileslist.length; i++) {
+        String[] files = new String[fileslist.length];  */
+        File dir = ctx.getDir("files", Context.MODE_PRIVATE);
+        File[] fileslist = dir.listFiles();
+        String[] files= new String[fileslist.length];
+        byte[] buffer = new byte[1024];
+        for (int i=0;i<fileslist.length;i++) {
             try {
                 String name = fileslist[i].getName();
                 if (name.endsWith(".xml")) {
-                    FileInputStream fis = ctx.openFileInput(fileslist[i].getName());
+                    String file = fileslist[i].getName();
+                    FileInputStream fis = ctx.openFileInput(file);
+                    int ch;
+                    StringBuilder sb = new StringBuilder();
+                    while((ch = fis.read())!=-1){
+                        sb.append((char) ch);
+                    }
+                    files[i] = sb.toString();
+                    fis.close();
+                    /*
                     InputStreamReader isr = new InputStreamReader(fis);
                     BufferedReader bufferedReader = new BufferedReader(isr);
                     StringBuilder sb = new StringBuilder();
@@ -104,7 +118,8 @@ public class Compress {
                     while((line = bufferedReader.readLine())!=null){
                         sb.append(line);
                     }
-                    files[i] = sb.toString();
+                    files[i] = sb.toString();*/
+
                 }
             } catch (Exception e) {
                 e.printStackTrace();
