@@ -11,7 +11,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 
-
 public class ThreadActivity extends ActionBarActivity {
 
     private final String ACTION_FROM_THREADS = "fromThreadsActivity";
@@ -147,7 +146,7 @@ public class ThreadActivity extends ActionBarActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_threads, menu);
         return true;
     }
 
@@ -167,6 +166,5 @@ public class ThreadActivity extends ActionBarActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
-
 
 }

@@ -11,17 +11,14 @@ import android.os.IBinder;
 import android.util.ArrayMap;
 import android.widget.Toast;
 
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.TreeSet;
 
 public class MyService extends Service {
 
-    private final long NO_BACKUP = -1;
+    private final long NEVER = 0;
     private final long NO_AUTO = 0;
     private final String ACTION_FROM_MAIN = "fromMainActivity";
     private final String ACTION_FROM_THREADS = "fromThreadsActivity";
@@ -44,12 +41,12 @@ public class MyService extends Service {
     private Thread thread;
 
     private HashSet<String> threadsIds = null;
+    private ArrayMap<Integer, Long> lastSmsBackups = null;
 
     private boolean restore = false;
     private boolean saveThreads = false;
 
     private long time;
-    private long last_sms_backup;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -71,9 +68,19 @@ public class MyService extends Service {
         final Context context = getApplicationContext();
         final SharedPreferences sharedPref = context.getSharedPreferences(
                 getString(R.string.service_settings), Context.MODE_PRIVATE);
-        this.last_sms_backup = sharedPref.getLong(getString(R.string.last_sms_backup), 1);
-        this.time = sharedPref.getLong(getString(R.string.time_period), NO_AUTO);
         this.threadsIds = (HashSet<String>) sharedPref.getStringSet("threads", null);
+        if (threadsIds != null) {
+            Iterator<String> iterator = threadsIds.iterator();
+            ArrayMap<Integer, Long> lastSmsBackups = new ArrayMap<>();
+            while (iterator.hasNext()) {
+                Integer key = Integer.parseInt(iterator.next());
+                Long value = sharedPref.getLong("sms" + key, NEVER);
+                lastSmsBackups.put(key, value);
+            }
+            this.lastSmsBackups = lastSmsBackups;
+        }
+
+        this.time = sharedPref.getLong(getString(R.string.time_period), NO_AUTO);
 
         if (receiver != null) {
             IntentFilter intentFilter = new IntentFilter(ACTION_FROM_MAIN);
@@ -82,7 +89,7 @@ public class MyService extends Service {
         }
 
         thread = createNewThread(sharedPref);
-        if (threadsIds != null && !threadsIds.isEmpty()) {
+        if (threadsIds != null && !threadsIds.isEmpty() && lastSmsBackups != null && !lastSmsBackups.isEmpty()) {
             thread.start();
         }
 
@@ -99,7 +106,13 @@ public class MyService extends Service {
         SharedPreferences sharedPref = context.getSharedPreferences(
                 getString(R.string.service_settings), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putLong(getString(R.string.last_sms_backup), last_sms_backup);
+        editor.putStringSet("threads", threadsIds);
+        if (lastSmsBackups != null) {
+            for (String key : threadsIds) {
+                Long value = lastSmsBackups.get(Integer.parseInt(key));
+                editor.putLong("sms" + key, value);
+            }
+        }
         editor.apply();
 
         unregisterReceiver(receiver);
@@ -124,7 +137,8 @@ public class MyService extends Service {
                     do {
                         for (String sId : threadsIds) {
                             int id = Integer.parseInt(sId);
-                            String[] smsData = (last_sms_backup != NO_BACKUP) ? dba.getSmsXml(last_sms_backup, id) : null;
+                            long smsBackup = lastSmsBackups.get(id);
+                            String[] smsData = dba.getSmsXml(smsBackup, id);
                             if (smsData != null) {
                                 int sms_amount = sharedPref.getInt("sms_amount", 0);
                                 Compress compress = new Compress();
@@ -134,20 +148,23 @@ public class MyService extends Service {
                                 editor.putInt("sms_amount", sms_amount + files.length);
                                 editor.apply();
                                 Calendar calendar = Calendar.getInstance();
-                                last_sms_backup = calendar.getTimeInMillis();
+                                Long backup = calendar.getTimeInMillis();
+                                lastSmsBackups.put(id, backup);
                             }
-                            String address = dba.getAddressByThreadId(id);
-                            String[] pplData = null;
-                            if (address != null) {
-                                pplData = dba.getContactXml(address);
-                                if (pplData != null) {
-                                    int ppl_amount = sharedPref.getInt("ppl_amount", 0);
-                                    Compress compress = new Compress();
-                                    String[] files = compress.writeFilesExternal(pplData, ppl_amount, "contact");
-                                    compress.zip(files);
-                                    SharedPreferences.Editor editor = sharedPref.edit();
-                                    editor.putInt("ppl_amount", ppl_amount + files.length);
-                                    editor.apply();
+                            if (smsBackup == NEVER) {
+                                String address = dba.getAddressByThreadId(id);
+                                String[] pplData = null;
+                                if (address != null) {
+                                    pplData = dba.getContactXml(address);
+                                    if (pplData != null) {
+                                        int ppl_amount = sharedPref.getInt("ppl_amount", 0);
+                                        Compress compress = new Compress();
+                                        String[] files = compress.writeFilesExternal(pplData, ppl_amount, "contact");
+                                        compress.zip(files);
+                                        SharedPreferences.Editor editor = sharedPref.edit();
+                                        editor.putInt("ppl_amount", ppl_amount + files.length);
+                                        editor.apply();
+                                    }
                                 }
                             }
                         }
@@ -174,15 +191,13 @@ public class MyService extends Service {
                 if (file != null && file.contains("sms")) {
                     list.add(parser.parse(file));
                 }
-            } catch (XmlPullParserException e) {
-                Toast.makeText(this, "XmlPullParserException", Toast.LENGTH_SHORT).show();
-            } catch (IOException e) {
-                Toast.makeText(this, "IOException", Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         DbAccess dba = new DbAccess(this);
         if (dba.restoreSms(list)) {
-            Toast.makeText(this, "Zrobione: " + list.size() + " <- " + files.length, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Zrobione.", Toast.LENGTH_SHORT).show();
         }
         restore = false;
     }

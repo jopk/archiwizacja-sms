@@ -122,7 +122,7 @@ public class DbAccess {
                     values.put(name, val);
                 }
             }
-            ctx.getContentResolver().insert(DbAccess.SMS_URI, values);
+            ctx.getContentResolver().insert(SMS_URI, values);
         }
         c.close();
         return true;
@@ -184,8 +184,8 @@ public class DbAccess {
 
     private Cursor getContactsByAddress(String address) {
         String[] mProjection = { "data4", "display_name" };
-        String mSelection = "data4=?";
-        String[] mSelectionArgs = { address };
+        String mSelection = "data1=? OR data4=?";
+        String[] mSelectionArgs = { address, address };
         return ctx.getContentResolver().query(PPL_URI, mProjection, mSelection, mSelectionArgs, null);
     }
 
@@ -209,7 +209,6 @@ public class DbAccess {
             }
             threadC.moveToNext();
             smsC.close();
-
         }
         threadC.close();
         String[] data = new String[tmp_data.length];
