@@ -93,21 +93,18 @@ public class Compress {
     private final String TAG = "Compress";
 
     public String[] readFiles(Context ctx) {
-       /* File path = ctx.getFilesDir();
+        File path = ctx.getFilesDir();
         File fileslist[] = path.listFiles();
-        String[] files = new String[fileslist.length];  */
-        File dir = ctx.getDir("files", Context.MODE_PRIVATE);
-        File[] fileslist = dir.listFiles();
-        Log.e(TAG, ""+fileslist.length);
-        String[] files= new String[fileslist.length];
+        String[] files = new String[fileslist.length];
+        Log.wtf(TAG, "" + files.length);
         byte[] buffer = new byte[1024];
-        for (int i=0;i<fileslist.length;i++) {
+        for (int i=0;i<files.length;i++) {
             try {
                 String name = fileslist[i].getName();
-                Log.e(TAG, name);
+                Log.wtf(TAG, name);
                 if (name.endsWith(".xml")) {
-                    String file = fileslist[i].getName();
-                    FileInputStream fis = ctx.openFileInput(file);
+                    //String file = fileslist[i].getName();
+                    FileInputStream fis = ctx.openFileInput(name);
                     int ch;
                     StringBuilder sb = new StringBuilder();
                     while((ch = fis.read())!=-1){
