@@ -2,6 +2,7 @@ package com.jok.archwizacja_sms;
 
 import android.content.Context;
 import android.os.Environment;
+import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -89,17 +90,21 @@ public class Compress {
         return files;
     }
 
+    private final String TAG = "Compress";
+
     public String[] readFiles(Context ctx) {
        /* File path = ctx.getFilesDir();
         File fileslist[] = path.listFiles();
         String[] files = new String[fileslist.length];  */
         File dir = ctx.getDir("files", Context.MODE_PRIVATE);
         File[] fileslist = dir.listFiles();
+        Log.e(TAG, ""+fileslist.length);
         String[] files= new String[fileslist.length];
         byte[] buffer = new byte[1024];
         for (int i=0;i<fileslist.length;i++) {
             try {
                 String name = fileslist[i].getName();
+                Log.e(TAG, name);
                 if (name.endsWith(".xml")) {
                     String file = fileslist[i].getName();
                     FileInputStream fis = ctx.openFileInput(file);

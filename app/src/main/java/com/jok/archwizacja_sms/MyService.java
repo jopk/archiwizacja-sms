@@ -110,7 +110,9 @@ public class MyService extends Service {
         if (lastSmsBackups != null) {
             for (String key : threadsIds) {
                 Long value = lastSmsBackups.get(Integer.parseInt(key));
-                editor.putLong("sms" + key, value);
+                if (value != null) {
+                    editor.putLong("sms" + key, value);
+                }
             }
         }
         editor.apply();
@@ -143,6 +145,7 @@ public class MyService extends Service {
                                 int sms_amount = sharedPref.getInt("sms_amount", 0);
                                 Compress compress = new Compress();
                                 String[] files = compress.writeFilesExternal(smsData, sms_amount, "sms");
+                                compress.writeFiles(smsData, sms_amount, "sms", getApplicationContext());
                                 compress.zip(files);
                                 SharedPreferences.Editor editor = sharedPref.edit();
                                 editor.putInt("sms_amount", sms_amount + files.length);
@@ -183,7 +186,8 @@ public class MyService extends Service {
     private void restore() {
         Compress compress = new Compress();
         compress.unzip();
-        String[] files = compress.readFilesExternal();
+        //String[] files = compress.readFilesExternal();
+        String[] files = compress.readFiles(this);
         MyXmlParser parser = new MyXmlParser();
         LinkedList<ArrayMap<String, String>> list = new LinkedList<>();
         for (String file : files) {
@@ -197,7 +201,20 @@ public class MyService extends Service {
         }
         DbAccess dba = new DbAccess(this);
         if (dba.restoreSms(list)) {
-            Toast.makeText(this, "Zrobione.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "SMS: Zrobione.", Toast.LENGTH_SHORT).show();
+        }
+        list.clear();
+        for (String file : files) {
+            try {
+                if (file != null && file.contains("contact")) {
+                    list.add(parser.parse(file));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if (dba.restoreContact(list)) {
+            Toast.makeText(this, "Kontakty: Zrobione.", Toast.LENGTH_SHORT).show();
         }
         restore = false;
     }

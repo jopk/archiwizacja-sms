@@ -96,17 +96,18 @@ public class DbAccess {
         return data;
     }
 
-    public boolean restoreSms(LinkedList<ArrayMap<String, String>> list) {
+    boolean restoreSms(LinkedList<ArrayMap<String, String>> list) {
+        boolean status = false;
         ListIterator<ArrayMap<String, String>> iterator = list.listIterator();
         while (iterator.hasNext()) {
-            ArrayMap<String, String> tmp = iterator.next();
-            if (tmp == null) {
+            ArrayMap<String, String> record = iterator.next();
+            if (record == null) {
                 iterator.remove();
                 continue;
             }
             String[] mProjection = { Telephony.Sms.ADDRESS, Telephony.Sms.DATE, Telephony.Sms.BODY, Telephony.Sms.TYPE };
             String mSelection = "address=? AND date=? AND body=? AND type=?";
-            String[] mSelectionArgs = { tmp.get(Telephony.Sms.ADDRESS), tmp.get(Telephony.Sms.DATE), tmp.get(Telephony.Sms.BODY), tmp.get(Telephony.Sms.TYPE) };
+            String[] mSelectionArgs = { record.get(Telephony.Sms.ADDRESS), record.get(Telephony.Sms.DATE), record.get(Telephony.Sms.BODY), record.get(Telephony.Sms.TYPE) };
             Cursor c = ctx.getContentResolver().query(SMS_URI, mProjection, mSelection, mSelectionArgs, null);
             if (c.getCount() > 0)
                 iterator.remove();
@@ -123,9 +124,44 @@ public class DbAccess {
                 }
             }
             ctx.getContentResolver().insert(SMS_URI, values);
+            status = true;
         }
         c.close();
-        return true;
+        return status;
+    }
+
+    boolean restoreContact(LinkedList<ArrayMap<String, String>> list) {
+        boolean status = false;
+        ListIterator<ArrayMap<String, String>> iterator = list.listIterator();
+        while (iterator.hasNext()) {
+            ArrayMap<String, String> record = iterator.next();
+            if (record == null) {
+                iterator.remove();
+                continue;
+            }
+            String[] mProjection = { Telephony.Sms.ADDRESS, Telephony.Sms.DATE, Telephony.Sms.BODY, Telephony.Sms.TYPE };
+            String mSelection = "data1=? OR data4=?";
+            String[] mSelectionArgs = { record.get(ContactsContract.CommonDataKinds.Phone.DATA1), record.get(ContactsContract.CommonDataKinds.Phone.DATA4) };
+            Cursor c = ctx.getContentResolver().query(PPL_URI, mProjection, mSelection, mSelectionArgs, null);
+            if (c.getCount() > 0)
+                iterator.remove();
+            c.close();
+        }
+        Cursor c = ctx.getContentResolver().query(PPL_URI, null, null, null, null);
+        for (ArrayMap<String, String> map : list) {
+            ContentValues values = new ContentValues();
+            for (int i = 0; i < c.getColumnCount(); i++) {
+                String name = c.getColumnName(i);
+                String val = map.get(name);
+                if (!val.equals("null")) {
+                    values.put(name, val);
+                }
+            }
+            ctx.getContentResolver().insert(PPL_URI, values);
+            status = true;
+        }
+        c.close();
+        return status;
     }
 
     String getAddressByThreadId(int id) {
