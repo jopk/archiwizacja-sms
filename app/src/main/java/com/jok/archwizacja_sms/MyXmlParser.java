@@ -12,9 +12,12 @@ import java.io.StringReader;
 
 public class MyXmlParser {
 
+    private final String tag;
     private static final String ns = null;
 
-    public MyXmlParser() {}
+    public MyXmlParser(String tag) {
+        this.tag = tag;
+    }
 
     public ArrayMap<String, String> parse(String file) throws XmlPullParserException, IOException {
         StringReader sr = new StringReader(file);
@@ -30,15 +33,15 @@ public class MyXmlParser {
     }
 
     private ArrayMap<String, String> readSms(XmlPullParser parser) throws XmlPullParserException, IOException {
-        parser.require(XmlPullParser.START_TAG, ns, "sms");
-        ArrayMap<String, String> smsData = new ArrayMap<>();
+        parser.require(XmlPullParser.START_TAG, ns, tag);
+        ArrayMap<String, String> data = new ArrayMap<>();
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG)
                 continue;
             String name = parser.getName();
-            smsData.put(name, readText(parser, name));
+            data.put(name, readText(parser, name));
         }
-        return smsData;
+        return data;
     }
 
     private String readText(XmlPullParser parser, String name) throws IOException, XmlPullParserException {

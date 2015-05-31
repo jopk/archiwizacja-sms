@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -121,6 +119,8 @@ public class SettingsActivity extends ActionBarActivity {
         editor.putInt(getString(R.string.time_period_month), month);
         editor.putLong(getString(R.string.time_period), time);
         editor.apply();
+
+        Toast.makeText(this, "Zapisano.", Toast.LENGTH_SHORT).show();
     }
 
     private long getMiliseconds(int second, int minute, int hour, int day, int week, int month) {

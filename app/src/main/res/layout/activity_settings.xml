@@ -8,7 +8,25 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        android:id="@+id/linearLayout">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/settings_height">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="@string/info"
+                android:id="@+id/info"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true" />
+
+        </LinearLayout>
+
 
         <LinearLayout
             android:orientation="horizontal"

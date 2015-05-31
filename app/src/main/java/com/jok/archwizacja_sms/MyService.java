@@ -22,6 +22,8 @@ public class MyService extends Service {
     private final long NO_AUTO = 0;
     private final String ACTION_FROM_MAIN = "fromMainActivity";
     private final String ACTION_FROM_THREADS = "fromThreadsActivity";
+    private final String SMS_TAG = "sms";
+    private final String CONTACT_TAG = "contact";
 
     BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -74,7 +76,7 @@ public class MyService extends Service {
             ArrayMap<Integer, Long> lastSmsBackups = new ArrayMap<>();
             while (iterator.hasNext()) {
                 Integer key = Integer.parseInt(iterator.next());
-                Long value = sharedPref.getLong("sms" + key, NEVER);
+                Long value = sharedPref.getLong(SMS_TAG + key, NEVER);
                 lastSmsBackups.put(key, value);
             }
             this.lastSmsBackups = lastSmsBackups;
@@ -111,7 +113,7 @@ public class MyService extends Service {
             for (String key : threadsIds) {
                 Long value = lastSmsBackups.get(Integer.parseInt(key));
                 if (value != null) {
-                    editor.putLong("sms" + key, value);
+                    editor.putLong(SMS_TAG + key, value);
                 }
             }
         }
@@ -143,9 +145,8 @@ public class MyService extends Service {
                             String[] smsData = dba.getSmsXml(smsBackup, id);
                             if (smsData != null) {
                                 int sms_amount = sharedPref.getInt("sms_amount", 0);
-                                Compress compress = new Compress();
-                                String[] files = compress.writeFilesExternal(smsData, sms_amount, "sms");
-                                compress.writeFiles(smsData, sms_amount, "sms", getApplicationContext());
+                                Compress compress = new Compress(getApplicationContext());
+                                String[] files = compress.writeFiles(smsData, sms_amount, SMS_TAG);
                                 compress.zip(files);
                                 SharedPreferences.Editor editor = sharedPref.edit();
                                 editor.putInt("sms_amount", sms_amount + files.length);
@@ -161,8 +162,8 @@ public class MyService extends Service {
                                     pplData = dba.getContactXml(address);
                                     if (pplData != null) {
                                         int ppl_amount = sharedPref.getInt("ppl_amount", 0);
-                                        Compress compress = new Compress();
-                                        String[] files = compress.writeFilesExternal(pplData, ppl_amount, "contact");
+                                        Compress compress = new Compress(getApplicationContext());
+                                        String[] files = compress.writeFiles(pplData, ppl_amount, CONTACT_TAG);
                                         compress.zip(files);
                                         SharedPreferences.Editor editor = sharedPref.edit();
                                         editor.putInt("ppl_amount", ppl_amount + files.length);
@@ -184,15 +185,14 @@ public class MyService extends Service {
     }
 
     private void restore() {
-        Compress compress = new Compress();
+        Compress compress = new Compress(getApplicationContext());
         compress.unzip();
-        //String[] files = compress.readFilesExternal();
-        String[] files = compress.readFiles(this);
-        MyXmlParser parser = new MyXmlParser();
+        String[] files = compress.readFiles();
+        MyXmlParser parser = new MyXmlParser(SMS_TAG);
         LinkedList<ArrayMap<String, String>> list = new LinkedList<>();
         for (String file : files) {
             try {
-                if (file != null && file.contains("sms")) {
+                if (file != null && file.contains(SMS_TAG)) {
                     list.add(parser.parse(file));
                 }
             } catch (Exception e) {
@@ -204,9 +204,10 @@ public class MyService extends Service {
             Toast.makeText(this, "SMS: Zrobione.", Toast.LENGTH_SHORT).show();
         }
         list.clear();
+        parser = new MyXmlParser(CONTACT_TAG);
         for (String file : files) {
             try {
-                if (file != null && file.contains("contact")) {
+                if (file != null && file.contains(CONTACT_TAG)) {
                     list.add(parser.parse(file));
                 }
             } catch (Exception e) {

@@ -14,7 +14,6 @@ import android.widget.Switch;
 public class MainActivity extends ActionBarActivity {
 
     private final String ACTION_FROM_MAIN = "fromMainActivity";
-    private final String ACTION_TO_MAIN = "toMainActivity";
 
     private Switch swch;
 

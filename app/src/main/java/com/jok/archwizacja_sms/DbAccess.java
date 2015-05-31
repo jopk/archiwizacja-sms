@@ -2,7 +2,6 @@ package com.jok.archwizacja_sms;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
@@ -12,10 +11,6 @@ import android.util.Xml;
 import org.xmlpull.v1.XmlSerializer;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.sql.Date;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
@@ -269,15 +264,5 @@ public class DbAccess {
             }
         }
         return data;
-    }
-
-    public static String formatDate(long ts) {
-        try {
-            DateFormat df = new SimpleDateFormat("HH:mm:ss, dd.MM.yyyy");
-            Date myDate = new Date(ts);
-            return df.format(myDate);
-        } catch (Exception e) {
-            return "error";
-        }
     }
 }
