@@ -134,7 +134,7 @@ public class DbAccess {
                 iterator.remove();
                 continue;
             }
-            String[] mProjection = { Telephony.Sms.ADDRESS, Telephony.Sms.DATE, Telephony.Sms.BODY, Telephony.Sms.TYPE };
+            String[] mProjection = { ContactsContract.CommonDataKinds.Phone.DATA1, ContactsContract.CommonDataKinds.Phone.DATA4 };
             String mSelection = "data1=? OR data4=?";
             String[] mSelectionArgs = { record.get(ContactsContract.CommonDataKinds.Phone.DATA1), record.get(ContactsContract.CommonDataKinds.Phone.DATA4) };
             Cursor c = ctx.getContentResolver().query(PPL_URI, mProjection, mSelection, mSelectionArgs, null);
