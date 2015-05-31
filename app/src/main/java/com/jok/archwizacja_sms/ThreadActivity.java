@@ -69,6 +69,8 @@ public class ThreadActivity extends ActionBarActivity {
                 saveThreads();
                 break;
             case R.id.button_now:
+                findChecked();
+                saveThreads();
                 archiveNow();
                 break;
         }
@@ -91,7 +93,6 @@ public class ThreadActivity extends ActionBarActivity {
     }
 
     private void archiveNow() {
-        saveThreads();
         Intent killIntent = new Intent();
         killIntent.putExtra("kill", true);
         killIntent.setAction(ACTION_FROM_THREADS);
