@@ -19,6 +19,9 @@ public class MyXmlParser {
         this.tag = tag;
     }
 
+    /**
+     * Czyta poprawnie sformatowany dokument xml, na niepoprawnie kończy pracę wyjątkiem.
+     */
     public ArrayMap<String, String> parse(String file) throws XmlPullParserException, IOException {
         StringReader sr = new StringReader(file);
         try {
@@ -32,6 +35,9 @@ public class MyXmlParser {
         }
     }
 
+    /**
+     * Nazwa archaiczna, czyta po prostu wszystko.
+     */
     private ArrayMap<String, String> readSms(XmlPullParser parser) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, ns, tag);
         ArrayMap<String, String> data = new ArrayMap<>();
@@ -44,6 +50,9 @@ public class MyXmlParser {
         return data;
     }
 
+    /**
+     * Pobiera zawartość tagu: <tag>zawartość</tag>
+     */
     private String readText(XmlPullParser parser, String name) throws IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, ns, name);
         String result = "";

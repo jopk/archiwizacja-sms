@@ -18,13 +18,25 @@ import java.util.LinkedList;
 
 public class MyService extends Service {
 
+    /**
+     * Tryby archiwizacji.
+     */
     private final long NEVER = 0;
     private final long NO_AUTO = 0;
+    /**
+     * Akcje dla receivera.
+     */
     private final String ACTION_FROM_MAIN = "fromMainActivity";
     private final String ACTION_FROM_THREADS = "fromThreadsActivity";
+    /**
+     * Tagi dla wydobywania danych z bazy i xmla.
+     */
     private final String SMS_TAG = "sms";
     private final String CONTACT_TAG = "contact";
 
+    /**
+     * Służy do otrzymywania poleceń od aktywności.
+     */
     BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -39,17 +51,31 @@ public class MyService extends Service {
         }
     };
 
+    /**
+     * Baza danych i wątek archiwizacji.
+     */
     private DbAccess dba;
     private Thread thread;
 
+    /**
+     * ID wątków do archiwizacji i data wykonania ostatniej kopii.
+     */
     private HashSet<String> threadsIds = null;
     private ArrayMap<Integer, Long> lastSmsBackups = null;
 
+    /**
+     * Flagi kontrolne dla wątka.
+     * restore - czy wrzucić smsy z zipa do bazy.
+     * saveT. - czy będzie wykonywany zapis.
+     */
     private boolean restore = false;
     private boolean saveThreads = false;
 
     private long time;
 
+    /**
+     * Wykonuje się po onCreate(), ustala tryb pracy.
+     */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Toast.makeText(this, "Service.onStartCommand()", Toast.LENGTH_SHORT).show();
@@ -63,6 +89,11 @@ public class MyService extends Service {
         return START_STICKY;
     }
 
+    /**
+     * Tworzy serwis i odczytuje ustawienia z SharedPreferences, czyli listę wątków do archiwizacji
+     * i datę ich ostatniej kopii, oraz okres wykonywania kopii. Jeśli okres jest =/= 0 to startuje wątek.
+     * Rejestruje receivera do odbioru komunikatów z aktywności.
+     */
     @Override
     public void onCreate() {
         Toast.makeText(this, "Service.onCreate()", Toast.LENGTH_SHORT).show();
@@ -97,6 +128,9 @@ public class MyService extends Service {
 
     }
 
+    /**
+     * Zabija wątek automatyczej archwiizacji i zapisuje ustawienia. Wyrejestrowuje receivera.
+     */
     @Override
     public void onDestroy() {
         Toast.makeText(this, "Service.onDestroy()", Toast.LENGTH_SHORT).show();
@@ -130,6 +164,12 @@ public class MyService extends Service {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+    /**
+     * Serce servisu. Odpala wątek do wykonania kopii lub odzyskania danych.
+     * Główna pętla do wykonuje sie co najmniej raz (archiwizacja natychmiastowa-jednorazowa).
+     * Kontakty zapisuje tylko przy pierwszym zapisie smsów dla danego wątka.
+     * Smsy zapisuje tylko od ostatniej daty zapisu (przyrostowość).
+     */
     private Thread createNewThread(final SharedPreferences sharedPref) {
         return new Thread(new Runnable() {
             @Override
@@ -184,6 +224,10 @@ public class MyService extends Service {
         });
     }
 
+    /**
+     * Po kolei najpierw czyta smsy, a potem kontakty i w tejże kolejności wrzuca je do bazy.
+     * (Ale tylko nie występujące w niej, patrz: Compress.restore[Sms/Contacts]).
+     */
     private void restore() {
         Compress compress = new Compress(getApplicationContext());
         compress.unzip();
@@ -220,6 +264,9 @@ public class MyService extends Service {
         restore = false;
     }
 
+    /**
+     * Zapisuje które wątki będą archiwizowane. Set, żeby nie dublować.
+     */
     private void storeList(int[] ids) {
         HashSet<String> set = new HashSet<>();
         for (int id : ids) {

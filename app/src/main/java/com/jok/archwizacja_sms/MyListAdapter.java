@@ -25,6 +25,11 @@ public class MyListAdapter extends ArrayAdapter<String> {
         }
     }
 
+    /**
+     * Google i internet twierdzi że to dobry wzorzec.
+     * W zasadzie wygodny, bo zapewnia jednokrotną inicjalizację czyli że dane już są potem.
+     * I łatwo się dzięki temu na nich operuje.
+     */
     private static class ViewHolder {
         TextView textView;
         CheckBox checkBox;
@@ -58,6 +63,10 @@ public class MyListAdapter extends ArrayAdapter<String> {
         viewHolder.textView.setText(data[position]);
         return rowView;
     }
+
+    /**
+     * potrzebne do sprawdzenia które wątki będą archiwizowane.
+     */
     public boolean[] getChecked(){
         return checked;
     }

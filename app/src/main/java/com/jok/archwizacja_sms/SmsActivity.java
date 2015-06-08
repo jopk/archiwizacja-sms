@@ -20,6 +20,9 @@ public class SmsActivity extends Activity {
         super.onConfigurationChanged(newConfig);
     }
 
+    /**
+     * Czyta z bazy listę smsów przypisaną do wątku (id podane w intencie) i wyświetla na listview.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

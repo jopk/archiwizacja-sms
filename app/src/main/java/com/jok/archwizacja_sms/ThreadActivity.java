@@ -13,9 +13,16 @@ import android.widget.ListView;
 
 public class ThreadActivity extends ActionBarActivity {
 
+    /**
+     * Akcja (w uproszczeniu można traktować jako tag) potrzebna żeby serwis rozróżniał wysyłane komunikaty.
+     */
     private final String ACTION_FROM_THREADS = "fromThreadsActivity";
 
     private DbAccess dba;
+    /**
+     * Te trzy tablice są równoległe, tj.
+     * threadId[k] odpowiada threadName[k], a checkedThreads[k] informuje czy ten wątek podlega kopiowaniu.
+     */
     private int[] threadId;
     private String[] threadName;
     public int[] checkedThreads = null;
@@ -76,6 +83,9 @@ public class ThreadActivity extends ActionBarActivity {
         }
     }
 
+    /**
+     * Wysyła serwisowi sygnał startu, następnie przesyła listę id wątków do archiwizacji.
+     */
     private void saveThreads() {
         int[] ids = checkedThreads;
         Intent startIntent = new Intent(this, MyService.class);
@@ -92,6 +102,10 @@ public class ThreadActivity extends ActionBarActivity {
         sendBroadcast(actionIntent);
     }
 
+    /**
+     * Zabija serwis i uruchamia ponownie co powoduje co najmniej jednokrotny przebieg pętli w wątku serwisu.
+     * Wykonywane w sekwencji PO przesłaniu id wątków do archiwizacji co zapewnia że zrobi co ma zrobić.
+     */
     private void archiveNow() {
         Intent killIntent = new Intent();
         killIntent.putExtra("kill", true);
@@ -106,6 +120,9 @@ public class ThreadActivity extends ActionBarActivity {
         startService(restartIntent);
     }
 
+    /**
+     * Wyszukuje zaznaczone do archiwizacji wątki wykorzystując "równoległość" tablic.
+     */
     private void findChecked() {
         checkedThreads = new int[threadId.length];
         boolean[] checkedbool;
@@ -123,6 +140,9 @@ public class ThreadActivity extends ActionBarActivity {
     }
 
 
+    /**
+     * Czyta z bazy listę wątków i wyświetla w listview.
+     */
     private void createThreadList() {
         setContentView(R.layout.activity_thread);
 

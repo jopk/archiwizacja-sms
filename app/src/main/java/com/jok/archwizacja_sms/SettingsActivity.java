@@ -43,6 +43,10 @@ public class SettingsActivity extends ActionBarActivity {
         super.onResume();
     }
 
+
+    /**
+     * Czyta zapisany okres automatycznej archiwizacji.
+     */
     private void loadSettings() {
         final Context context = getApplicationContext();
         SharedPreferences sharedPref = context.getSharedPreferences(
@@ -89,6 +93,10 @@ public class SettingsActivity extends ActionBarActivity {
         }
     }
 
+    /**
+     * Zapisuje okres automatycznego wykonywania kopii.
+     * Plik SharedPreferences jest wspólny dla całej apki (stąd servis go czyta).
+     */
     private void saveSettings() {
         EditText input;
         input = (EditText) findViewById(R.id.edit_seconds);

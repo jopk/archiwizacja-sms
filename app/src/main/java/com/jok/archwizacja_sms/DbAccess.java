@@ -20,13 +20,15 @@ public class DbAccess {
     public static final Uri SMS_URI = Uri.parse("content://sms/");
     public static final Uri THREAD_URI = Uri.parse("content://sms/conversations");
     public static final Uri PPL_URI = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
-
     private Context ctx;
 
     public DbAccess(final Context ctx) {
         this.ctx = ctx;
     }
 
+    /**
+     * Pobiera wątkami smsy które zostały wysłane/.../otrzymane po podanej dacie.
+     */
     String[] getSmsXml(long date, int thread_id) {
         Uri uri= SMS_URI;
         String tag = "sms";
@@ -35,6 +37,9 @@ public class DbAccess {
         return getXml(uri, tag, mSelection, mSelectionArgs);
     }
 
+    /**
+     * Pobiera dane kontaktu dla konkretnego numeru telefonu.
+     */
     String[] getContactXml(String address) {
         Uri uri= PPL_URI;
         String tag = "contact";
@@ -43,6 +48,9 @@ public class DbAccess {
         return getXml(uri, tag, mSelection, mSelectionArgs);
     }
 
+    /**
+     * Wyciąga dane z bazy i opakowuje je w dokument xml.
+     */
     String[] getXml(Uri uri, String tag, String mSelection, String[] mSelectionArgs) {
         String[] data;
         Cursor cursor = ctx.getContentResolver().query(uri, null, mSelection, mSelectionArgs, null);
@@ -68,7 +76,7 @@ public class DbAccess {
                         }
                         else {
                             try {
-                                serializer.text(cursor.getString(i));
+                                serializer.text(cursor.getString(i)); // problemy z unicodem (not escaped)
                             } catch (Exception e) {
                                 serializer.text("BŁĄD: Ten rekord nie może zostać poprawnie zarchiwizowany.");
                             }
@@ -91,6 +99,9 @@ public class DbAccess {
         return data;
     }
 
+    /**
+     * Filtruje otrzymaną listę smsów po numerze tel, treści i typie (wysłane, etc). Niewystępujące dodaje do bazy.
+     */
     boolean restoreSms(LinkedList<ArrayMap<String, String>> list) {
         boolean status = false;
         ListIterator<ArrayMap<String, String>> iterator = list.listIterator();
@@ -125,6 +136,9 @@ public class DbAccess {
         return status;
     }
 
+    /**
+     * Filtruje otrzymaną listę kontaktów po numerze telefonu i niewystępujące dodaje do bazy.
+     */
     boolean restoreContact(LinkedList<ArrayMap<String, String>> list) {
         boolean status = false;
         ListIterator<ArrayMap<String, String>> iterator = list.listIterator();
@@ -159,6 +173,9 @@ public class DbAccess {
         return status;
     }
 
+    /**
+     * Odnajduje numer telefonu rozmówcy (z wątku).
+     */
     String getAddressByThreadId(int id) {
         Cursor smsC = getThreadSmses(id);
         String address = null;
@@ -180,6 +197,9 @@ public class DbAccess {
         return c;
     }
 
+    /**
+     * Potrzebne do wyświetlenia listy wątków
+     */
     int[] getThreadsIds() {
         Cursor threadC = getThreads();
         threadC.moveToFirst();
@@ -192,6 +212,9 @@ public class DbAccess {
         return ids;
     }
 
+    /**
+     * Potrzebne do wyświetlenia listy smsów dla konkretnego wątku.
+     */
     private Cursor getThreadSmses(int thread) {
         Cursor c;
         String[] mProjection = {"thread_id", "address", "date", "type", "body"};
@@ -220,6 +243,10 @@ public class DbAccess {
         return ctx.getContentResolver().query(PPL_URI, mProjection, mSelection, mSelectionArgs, null);
     }
 
+    /**
+     * Potrzebne do wyświetlenia listy wątków. Dla każdego wątku najpierw z smsów wyciąga numer telefonu rozmówcy.
+     * Potem wyszukuje kontakt po numerze.
+     */
     String[] getContactsNames() {
         Cursor threadC = getThreads();
         threadC.moveToFirst();

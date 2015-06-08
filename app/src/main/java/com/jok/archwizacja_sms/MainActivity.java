@@ -13,6 +13,9 @@ import android.widget.Switch;
 
 public class MainActivity extends ActionBarActivity {
 
+    /**
+     * Akcja (w uproszczeniu można traktować jako tag) potrzebna żeby serwis rozróżniał wysyłane komunikaty.
+     */
     private final String ACTION_FROM_MAIN = "fromMainActivity";
 
     private Switch swch;
@@ -35,6 +38,12 @@ public class MainActivity extends ActionBarActivity {
         });
     }
 
+    /**
+     * Dla "włączonego" przełącznika wysyła sygnał uruchomienia serwisu. Taki sygnał nawet wielokrotnie wysłany
+     * powoduje tylko JEDNO-KROTNE uruchomienie serwisu.
+     * Dla "wyłączonego" wysyła sygnał zabicia servisu. Google nie udostępnia API do sprawdzania czy servis żyje,
+     * więc wysyła ten sygnał w ciemno.
+     */
     public void switchCheck() {
         if (swch.isChecked()) {
             Intent intent = new Intent(this, MyService.class);
@@ -86,6 +95,10 @@ public class MainActivity extends ActionBarActivity {
                 break;
         }
     }
+
+    /**
+     * Odpala serwis i wysyła mu żądanie odzyskania smsów.
+     */
     private void restore() {
         Intent startIntent = new Intent(this, MyService.class);
         startIntent.putExtra("restore", true);
@@ -101,6 +114,9 @@ public class MainActivity extends ActionBarActivity {
         sendBroadcast(actionIntent);
     }
 
+    /**
+     * Odpala aktywność z wyborem wątków do archiwizacji.
+     */
     private void archive() {
         Intent intent = new Intent(getApplicationContext(), ThreadActivity.class);
         startActivity(intent);
