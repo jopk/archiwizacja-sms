@@ -18,14 +18,19 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-
+/**
+*	Klasa służąca do zapisywania plików .xml, ich odczytu, kompresjii, dekompresji oraz usuwania.
+**/
 public class Compress {
 
     private static final int BUFFER = 1024;
     private String ZIPFILE = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/" + "compressedsms.zip";
     private String FILEPATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/compress/";
     private Context ctx;
-
+	
+	/**
+	*	Context wymagany jest aby mieć dostęp do zapisywania plików w Internal storage. 
+	**/
     public Compress(Context ctx) { this.ctx = ctx;}
 
     private void deleteFiles(){
@@ -36,7 +41,6 @@ public class Compress {
                 new File(folder,files[i]).delete();
             }
         }
-
     }
 
     public String[] writeFiles(String[] data, int amount, String tag) {
@@ -54,8 +58,6 @@ public class Compress {
         }
         return files;
     }
-
-
 
     public String[] writeFilesExternal(String[] data, int amount, String tag) {
         String[] files = new String[data.length];
@@ -132,7 +134,11 @@ public class Compress {
         deleteFiles();
         return files;
     }
-
+	
+	/**
+	*	Funkcja kompresująca plik. W argumencie funkcji należy podać pliki do kompresji.
+	*	W razie gdyby plik .zip już istniał funkcja wykonuje "appenda"
+	**/
     public void zip(String[] files) {
         File compFile = ctx.getFileStreamPath("compressedsms.zip");
         if(compFile.exists()) {
@@ -149,11 +155,9 @@ public class Compress {
             BufferedInputStream origin = null;
             FileOutputStream dest = ctx.openFileOutput("compressedsms.zip",Context.MODE_PRIVATE);
             ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(dest));
-
             byte data[] = new byte[BUFFER];
             for(String file : files) {
                 FileInputStream fi = ctx.openFileInput(file);
-
                 origin = new BufferedInputStream(fi, BUFFER);
                 ZipEntry entry = new ZipEntry(file);
                 out.putNextEntry(entry);
